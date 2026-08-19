@@ -1,10 +1,10 @@
 # dsh-session-pruner
 
-**DSH session lifecycle management plugin** — prevent `session_projcache` cache bloat and Web stalls caused by session accumulation, at the source.
+**DSH session lifecycle management plugin** — full-type session lifecycle management: one-shot subagents archived on completion, continuable subagents and main sessions archived when idle, a capacity cap, and projection-cache cleanup. Prevents session-library accumulation stalls at the source.
 
-> Subagent sessions are kept on demand: one-shot subagents are auto-cleaned after completion, continuable subagents and main sessions are kept, and a capacity cap recycles the oldest when the total exceeds the limit. Every deleted session also purges its projection cache row, keeping the cache permanently small.
+> Every session type has a defined destination: finished one-shot subagents are archived automatically, idle continuable subagents / main sessions are archived, and overflow is recycled by priority. **Archive first (recoverable), delete after expiry** — the GUI syncs within 30s, fully panel-configured with hot reload.
 
-[English](README.en.md) · [Apache-2.0](LICENSE)
+[English](README.en.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner)
 
 ## Why
 
@@ -13,86 +13,122 @@ DSH (DeepSeek Harness) caches a full projection of every session in `session_pro
 - The cache balloons past 100MB and each checkpoint fully re-serializes → main process CPU 250%+
 - The single-threaded event loop is saturated → **every session load stalls, even `GET /` times out**
 
-Cleaning the session library (this plugin) is the root fix: no session accumulation → no cache rows → no stalls.
+Managing session lifecycle (this plugin) is the root fix: no session accumulation → no cache rows → no stalls.
 
-## Features
+## Features: full-type lifecycle
 
-| Strategy | Behavior | Default |
-|---|---|---|
-| **one-shot auto-clean** | Subagents with `mode=one-shot` are deleted at the next scan once their log contains `session/end-seed` | 30min interval |
-| **Capacity cap** | When total sessions exceed the cap, recycle by priority `one-shot → continuable → main` then by last-activity (oldest first) | 400 |
-| **Cache row purge** | Deleting a session also deletes its `session_projcache` row via the storageDomain write chain (atomic, durable) | on |
+| Session type | Trigger | Action | Default |
+|---|---|---|---|
+| **one-shot subagent** | log contains `session/end-seed` (finished) | archive/delete at next scan | 3min interval |
+| **continuable subagent** | idle over N days | archive (recoverable) | off (0 days) |
+| **main session** | idle over N days | archive (recoverable) | off (0 days) |
+| **any type** | total exceeds capacity cap | recycle by `one-shot → continuable → main` + oldest | 400 |
+| **archive directory** | kept over N hours | physically deleted | 24 hours |
 
-### Safety
+### Archive mechanism (recoverable)
 
-- **Running sessions are never touched**: only logs containing `session/end-seed` (finished) are deleted
-- **Main sessions are never auto-deleted** unless `CLEAN_MAIN=1` and the cap is exceeded
-- **Per-delete isolation**: every removal is try/catch wrapped; a failure logs and does not block the rest
-- Continuable subagents and main sessions are kept long-term, recycled only by the cap (oldest first)
+Cleaned sessions are **moved to `~/.dsh/sessions-archive/`** first (workspace/session-id structure preserved) — they disappear from the GUI immediately (the list only reads the sessions directory), but the files remain and can be restored manually:
+
+```sh
+# Restore: mv back into the sessions directory
+mv ~/.dsh/sessions-archive/<workspace>/<session-id> ~/.dsh/sessions/<workspace>/
+```
+
+A "delete directly" mode (no archive, irreversible) is also available.
+
+### Safety (double protection)
+
+- **Running sessions are never touched**: logs without `session/end-seed` are never cleaned (checked in both the one-shot path and the capacity cap)
+- **live protection**: sessions still held in the in-memory session store (open/loading) are skipped
+- Main sessions do not participate in capacity recycling by default (configurable)
+- Per-action failure isolation: every action is try/catch wrapped
 
 ## How it works
 
 ```
-scan (scheduled)
-  └─ iterate ~/.dsh/sessions/*/ decompress log (zstd)
-      ├─ origin: main | subagent      (session header)
-      ├─ mode: one-shot | continuable (subagent/descriptor event)
-      └─ ended: contains session/end-seed
-          │
-          ├─ one-shot + ended  ──→ delete session dir + purge cache row
-          └─ total > cap        ──→ recycle by priority + oldest (skip running)
+scan (scheduled, default 3min)
+  ├─ pruneArchive: physically delete expired archive sessions
+  ├─ iterate ~/.dsh/sessions/*/ decompress log (system zstd, multi-frame)
+  │     ├─ origin: main | subagent       (session header)
+  │     ├─ mode: one-shot | continuable  (subagent/descriptor event)
+  │     └─ ended: contains session/end-seed
+  ├─ one-shot + ended ──→ archive (archiveMode)
+  ├─ continuable/main idle N days ──→ archive
+  ├─ total > cap ──→ recycle by priority + oldest (skip running/live)
+  └─ each archive also: purge projcache row + workspace accounting
 ```
+
+GUI sync: the client calls `sessions.refreshList()` every `uiRefreshSeconds` seconds, so cleaned sessions disappear from the sidebar automatically — no page reload needed.
 
 ## Install
 
+### From npm (recommended)
+
 ```sh
-dsh plugin --profile web add <repo-path-or-url>
-# restart dsh web to load
+dsh plugin --profile web add dsh-session-pruner
 ```
 
-## Configuration (env vars)
+### From source (development)
 
-| Variable | Default | Description |
+```sh
+dsh plugin --profile web add /path/to/dsh-session-pruner
+```
+
+Restart dsh web after install (`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`).
+
+## Configuration (settings panel, hot reload)
+
+After install, open **Settings → Plugins → 会话生命周期管理** card. All 8 options save with hot reload (no restart):
+
+| Field | Default | Description |
 |---|---|---|
-| `DSH_SESSION_LIFECYCLE_INTERVAL_MS` | `1800000` (30min) | scan interval |
-| `DSH_SESSION_LIFECYCLE_MAX` | `400` | session count cap |
-| `DSH_SESSION_LIFECYCLE_CLEAN_MAIN` | `0` | allow cleaning main sessions when over cap (`1` to enable) |
+| Scan interval (min) | 3 | cleanup loop period |
+| Capacity cap (sessions) | 400 | recycle by priority + oldest when exceeded |
+| UI refresh interval (s) | 30 | GUI session list refresh period |
+| Archive retention (hours) | 24 | physical delete after retention |
+| Archive mode | archive | archive (recoverable) / delete directly (irreversible) |
+| Continuable idle archive (days) | 0 | archive after N idle days, 0 = off |
+| Main idle archive (days) | 0 | archive after N idle days, 0 = off |
+| Clean main on overflow | off | main participates in capacity recycling |
 
-On macOS + launchd, add the vars to `EnvironmentVariables` in `~/Library/LaunchAgents/com.deepseek.dsh-web.plist`, then:
-
-```sh
-launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web
-```
+Env vars (fallback, panel wins): `DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS`.
 
 ## Logs
 
-The first scan runs 5s after startup, then on the interval (output in guard `server-*.out.log`):
+Output in guard `server-*.out.log`:
 
 ```
-[session-lifecycle] armed: interval=0.5h cap=400 cleanMain=false
-[session-lifecycle] removed 1a2b3c4d5e6f (subagent/one-shot) one-shot done cache=true
-[session-lifecycle] scan done: 158 total, removed 0
+[session-lifecycle] armed: interval=3min cap=100 cleanMain=false
+[session-lifecycle] hot-reloaded: interval=3min cap=100 ... contIdle=1d mainIdle=2d
+[session-lifecycle] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
+[session-lifecycle] archive pruned: 2 expired
 ```
 
-`cache=true/false` tells whether the projection cache row was also purged.
+`cache=true/false` tells whether the projection cache row was purged along with the session.
 
 ## Tests
 
 ```sh
-node test/dry-run.js   # read-only scan of the whole library, verify classification (no deletion)
+node test/dry-run.js   # read-only full-library scan, verify classification (no deletion)
 node test/e2e.js       # create a fake one-shot session, verify the real cleanup path
 ```
 
 ## Implementation notes
 
 - **Multi-frame zstd**: DSH session logs are concatenated zstd frames (append writes); Node `zlib` decodes a single frame only, so the plugin shells out to the system `zstd` CLI (`brew install zstd` on macOS)
-- **Cache row purge**: `ctx.storageDomain.get('session_projcache').tables.sessions.delete(id)` — the official write chain (atomic persistence + in-memory sync); if the handle is unavailable it skips with a warning and does not block session deletion
-- **Zero runtime deps**: plain Node built-ins + cordis (`timer` / `storageDomain` injection)
+- **Cache row purge**: `storageDomain.get('session_projcache').table('sessions').delete(id)` — the official write chain (atomic persistence + in-memory sync)
+- **Workspace accounting**: the session id is removed from the workspace domain on archive, keeping the data source consistent with disk
+- **Zero npm deps**: plain Node built-ins + cordis runtime injection
+- **Panel + hot reload**: `installSettingsSection` + hand-written client card (`__ModuleLoader__` bundle), `onChange` re-schedules the timer instantly
+
+## Developer guide
+
+[`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH plugin development practice guide (architecture, Host/Client, settings panel, deployment ops, 10 pitfalls with fixes), the foundation for future plugin work.
 
 ## Known limits
 
-- A finished one-shot subagent survives at most one scan interval (default 30min)
-- Requires the system `zstd` CLI (install per platform)
+- A finished one-shot subagent survives at most one scan interval
+- Requires the system `zstd` CLI
 - The root fix lives upstream: projcache stale-session eviction / incremental storage writes, see [deepseek-harness Discussion #1550](https://github.com/deepseek-ai/deepseek-harness/discussions/1550)
 
 ## License
