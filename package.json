@@ -1,0 +1,16 @@
+{
+  "name": "dsh-session-lifecycle",
+  "version": "0.1.0",
+  "description": "会话生命周期管理：one-shot 子代理完成后自动清理 + 总量保底 + 连带清理 projcache，从源头杜绝缓存膨胀与卡顿。",
+  "type": "module",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

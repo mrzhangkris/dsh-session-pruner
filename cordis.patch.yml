@@ -1,0 +1,4 @@
+# session-lifecycle bundle patch：把插件挂进 profile
+- insert:
+    - id: session-lifecycle
+      name: 'dsh-session-lifecycle'
