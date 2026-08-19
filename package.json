@@ -1,7 +1,7 @@
 {
-  "name": "dsh-session-lifecycle",
+  "name": "dsh-session-pruner",
   "version": "0.1.0",
-  "description": "会话生命周期管理：one-shot 子代理完成后自动清理 + 总量保底 + 连带清理 projcache，从源头杜绝缓存膨胀与卡顿。",
+  "description": "会话生命周期管理：one-shot 完成归档/删除、可续与主会话闲置归档、容量保底、连带清理 projcache——全类型生命周期管理。",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -47,4 +47,3 @@
     }
   }
 }
-
