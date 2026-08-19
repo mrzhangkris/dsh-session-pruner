@@ -31,7 +31,7 @@
   "author": "mrzhangkris",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mrzhangkris/dsh-session-lifecycle.git"
+    "url": "https://github.com/mrzhangkris/dsh-session-pruner.git"
   },
   "dsh": {
     "bundle": {
@@ -45,5 +45,6 @@
         "@deepseek-ai/dsh-client-ui-settings"
       ]
     }
-  }
+  },
+  "homepage": "https://github.com/mrzhangkris/dsh-session-pruner"
 }

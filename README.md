@@ -1,4 +1,4 @@
-# dsh-session-lifecycle
+# dsh-session-pruner
 
 **DSH 会话生命周期管理插件** — 从源头杜绝会话库堆积导致的 `session_projcache` 缓存膨胀与 Web 卡顿。
 

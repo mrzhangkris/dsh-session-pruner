@@ -1,4 +1,4 @@
-# dsh-session-lifecycle
+# dsh-session-pruner
 
 **DSH session lifecycle management plugin** — prevent `session_projcache` cache bloat and Web stalls caused by session accumulation, at the source.
 
