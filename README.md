@@ -1,101 +1,101 @@
 # dsh-session-pruner
 
-**DSH 会话生命周期管理插件** — 全类型会话生命周期管理：one-shot 完成即归档、可续子代理与主会话闲置归档、容量保底、连带清理 projcache 缓存。从源头杜绝会话库堆积导致的卡顿。
+**DSH session lifecycle management plugin** — full-type session lifecycle management: one-shot subagents archived on completion, continuable subagents and main sessions archived when idle, a capacity cap, and projection-cache cleanup. Prevents session-library accumulation stalls at the source.
 
-> 每类会话都有明确的归宿：跑完的一次性子代理自动归档、闲置的可续子代理/主会话归档、总量超限按优先级回收。**先归档（可恢复）再到期删除**，GUI 30 秒内自动同步，全程面板配置、热加载生效。
+> Every session type has a defined destination: finished one-shot subagents are archived automatically, idle continuable subagents / main sessions are archived, and overflow is recycled by priority. **Archive first (recoverable), delete after expiry** — the GUI syncs within 30s, fully panel-configured with hot reload.
 
-[English](README.en.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner)
+[简体中文](README.zh-CN.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner)
 
-## 背景
+## Why
 
-DSH（DeepSeek Harness）的 `session_projcache.json` 缓存每个会话的完整投影（token 统计、context 压力等），且存储后端每次写入都**全量序列化 + 原子替换**。当会话库堆积上千个子代理会话时：
+DSH (DeepSeek Harness) caches a full projection of every session in `session_projcache.json` (token stats, context pressure, ...), and the storage backend rewrites the whole file atomically on **every** write. When the session library accumulates thousands of subagent sessions:
 
-- 缓存膨胀到 100MB+，每次 checkpoint 全量重写 → 主进程 CPU 250%+
-- 单线程事件循环被占满 → **所有会话加载卡顿，甚至 `GET /` 超时**
+- The cache balloons past 100MB and each checkpoint fully re-serializes → main process CPU 250%+
+- The single-threaded event loop is saturated → **every session load stalls, even `GET /` times out**
 
-管理会话生命周期（本插件）是治本：会话不堆积 → 缓存条目不产生 → 卡顿不复发。
+Managing session lifecycle (this plugin) is the root fix: no session accumulation → no cache rows → no stalls.
 
-## 功能：全类型生命周期
+## Features: full-type lifecycle
 
-| 会话类型 | 触发 | 动作 | 默认 |
+| Session type | Trigger | Action | Default |
 |---|---|---|---|
-| **one-shot 子代理** | 日志出现 `session/end-seed`（完成） | 下一轮扫描归档/删除 | 扫描间隔 3min |
-| **continuable 子代理** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
-| **主会话（main）** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
-| **任意类型** | 总量超过容量保底 | 按「one-shot → continuable → main」+ 最旧回收 | 400 个 |
-| **归档目录** | 保留超过 N 小时 | 物理删除 | 24 小时 |
+| **one-shot subagent** | log contains `session/end-seed` (finished) | archive/delete at next scan | 3min interval |
+| **continuable subagent** | idle over N days | archive (recoverable) | off (0 days) |
+| **main session** | idle over N days | archive (recoverable) | off (0 days) |
+| **any type** | total exceeds capacity cap | recycle by `one-shot → continuable → main` + oldest | 400 |
+| **archive directory** | kept over N hours | physically deleted | 24 hours |
 
-### 归档机制（可恢复）
+### Archive mechanism (recoverable)
 
-被清理的会话**先移入 `~/.dsh/sessions-archive/`**（保留 工作区/会话ID 结构）——GUI 立即消失（列表只读 sessions 目录），但文件还在，可手动恢复：
+Cleaned sessions are **moved to `~/.dsh/sessions-archive/`** first (workspace/session-id structure preserved) — they disappear from the GUI immediately (the list only reads the sessions directory), but the files remain and can be restored manually:
 
 ```sh
-# 恢复：mv 回 sessions 目录
-mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
+# Restore: mv back into the sessions directory
+mv ~/.dsh/sessions-archive/<workspace>/<session-id> ~/.dsh/sessions/<workspace>/
 ```
 
-也可选「直接删除」（不归档，不可恢复）。
+A "delete directly" mode (no archive, irreversible) is also available.
 
-### 安全保护（双保险）
+### Safety (double protection)
 
-- **运行中保护**：日志无 `session/end-seed` 的会话**永不清理**（one-shot 路径和容量保底都检查）
-- **live 保护**：内存 session store 里还挂着的会话（被打开/加载中）跳过
-- 主会话默认不参与容量回收（可配置）
-- 单点失败隔离：每个动作独立 try/catch
+- **Running sessions are never touched**: logs without `session/end-seed` are never cleaned (checked in both the one-shot path and the capacity cap)
+- **live protection**: sessions still held in the in-memory session store (open/loading) are skipped
+- Main sessions do not participate in capacity recycling by default (configurable)
+- Per-action failure isolation: every action is try/catch wrapped
 
-## 工作原理
+## How it works
 
 ```
-扫描（定时，默认 3min）
-  ├─ pruneArchive：归档目录超期物理删除
-  ├─ 遍历 ~/.dsh/sessions/*/ 解压会话日志（系统 zstd，多帧）
-  │     ├─ origin: main | subagent       （会话头）
-  │     ├─ mode: one-shot | continuable  （subagent/descriptor 事件）
-  │     └─ ended: 是否含 session/end-seed
-  ├─ one-shot + ended ──→ 归档（archiveMode）
-  ├─ continuable/main 闲置 N 天 ──→ 归档
-  ├─ 总量 > cap ──→ 按优先级+最旧 归档（跳过运行中/live）
-  └─ 每次归档连带：删 projcache 行 + workspace 记账
+scan (scheduled, default 3min)
+  ├─ pruneArchive: physically delete expired archive sessions
+  ├─ iterate ~/.dsh/sessions/*/ decompress log (system zstd, multi-frame)
+  │     ├─ origin: main | subagent       (session header)
+  │     ├─ mode: one-shot | continuable  (subagent/descriptor event)
+  │     └─ ended: contains session/end-seed
+  ├─ one-shot + ended ──→ archive (archiveMode)
+  ├─ continuable/main idle N days ──→ archive
+  ├─ total > cap ──→ recycle by priority + oldest (skip running/live)
+  └─ each archive also: purge projcache row + workspace accounting
 ```
 
-GUI 同步：client 每 `uiRefreshSeconds` 秒调 `sessions.refreshList()`，清理结果自动从侧边栏消失，无需刷新页面。
+GUI sync: the client calls `sessions.refreshList()` every `uiRefreshSeconds` seconds, so cleaned sessions disappear from the sidebar automatically — no page reload needed.
 
-## 安装
+## Install
 
-### 从 npm（推荐）
+### From npm (recommended)
 
 ```sh
 dsh plugin --profile web add dsh-session-pruner
 ```
 
-### 从源码（开发）
+### From source (development)
 
 ```sh
 dsh plugin --profile web add /path/to/dsh-session-pruner
 ```
 
-安装后重启 dsh web 生效（`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`）。
+Restart dsh web after install (`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`).
 
-## 配置（设置面板，热加载）
+## Configuration (settings panel, hot reload)
 
-安装后打开 **设置 → 插件配置 → 会话生命周期管理** 卡片，8 项配置保存即热加载（无需重启）：
+After install, open **Settings → Plugins → 会话生命周期管理** card. All 8 options save with hot reload (no restart):
 
-| 字段 | 默认 | 说明 |
+| Field | Default | Description |
 |---|---|---|
-| 扫描间隔（分钟） | 3 | 清理循环周期 |
-| 容量保底（会话数） | 400 | 超限按优先级+最旧回收 |
-| 界面刷新间隔（秒） | 30 | GUI 会话列表自动刷新周期 |
-| 归档保留（小时） | 24 | 归档目录到期物理删除 |
-| 归档方式 | 归档 | 归档（可恢复）/ 直接删除（不可恢复） |
-| 可续子代理闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
-| 主会话闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
-| 超限时清理主会话 | 关 | 容量超限时 main 参与回收 |
+| Scan interval (min) | 3 | cleanup loop period |
+| Capacity cap (sessions) | 400 | recycle by priority + oldest when exceeded |
+| UI refresh interval (s) | 30 | GUI session list refresh period |
+| Archive retention (hours) | 24 | physical delete after retention |
+| Archive mode | archive | archive (recoverable) / delete directly (irreversible) |
+| Continuable idle archive (days) | 0 | archive after N idle days, 0 = off |
+| Main idle archive (days) | 0 | archive after N idle days, 0 = off |
+| Clean main on overflow | off | main participates in capacity recycling |
 
-环境变量（兜底，面板配置优先）：`DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS`。
+Env vars (fallback, panel wins): `DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS`.
 
-## 日志
+## Logs
 
-输出在 guard 的 `server-*.out.log`：
+Output in guard `server-*.out.log`:
 
 ```
 [session-lifecycle] armed: interval=3min cap=100 cleanMain=false
@@ -104,33 +104,33 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 [session-lifecycle] archive pruned: 2 expired
 ```
 
-`cache=true/false` 表示 projcache 缓存行是否连带清理成功。
+`cache=true/false` tells whether the projection cache row was purged along with the session.
 
-## 测试
+## Tests
 
 ```sh
-node test/dry-run.js   # 只读扫描全库，验证识别逻辑（不删除）
-node test/e2e.js       # 构造 fake one-shot 会话，验证真实清理链路
+node test/dry-run.js   # read-only full-library scan, verify classification (no deletion)
+node test/e2e.js       # create a fake one-shot session, verify the real cleanup path
 ```
 
-## 实现要点
+## Implementation notes
 
-- **多帧 zstd**：DSH 会话日志是多 zstd frame 拼接（append 写入），Node `zlib` 只解单帧，插件调用系统 `zstd` 命令（macOS: `brew install zstd`）
-- **缓存行删除**：`storageDomain.get('session_projcache').table('sessions').delete(id)` 走官方写链（原子持久化 + 内存同步）
-- **workspace 记账**：归档时同步从 workspace 域移除 sessionId，数据源与磁盘一致
-- **零 npm 依赖**：纯 Node 内置 + cordis 运行时注入
-- **面板与热加载**：`installSettingsSection` + 手写 client 卡片（`__ModuleLoader__` bundle），`onChange` 即时重排定时器
+- **Multi-frame zstd**: DSH session logs are concatenated zstd frames (append writes); Node `zlib` decodes a single frame only, so the plugin shells out to the system `zstd` CLI (`brew install zstd` on macOS)
+- **Cache row purge**: `storageDomain.get('session_projcache').table('sessions').delete(id)` — the official write chain (atomic persistence + in-memory sync)
+- **Workspace accounting**: the session id is removed from the workspace domain on archive, keeping the data source consistent with disk
+- **Zero npm deps**: plain Node built-ins + cordis runtime injection
+- **Panel + hot reload**: `installSettingsSection` + hand-written client card (`__ModuleLoader__` bundle), `onChange` re-schedules the timer instantly
 
-## 开发文档
+## Developer guide
 
-[`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH 插件开发实践指南（架构、Host/Client、设置面板、部署运维、10 个坑与解法），为后续插件开发打基础。
+[`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH plugin development practice guide (architecture, Host/Client, settings panel, deployment ops, 10 pitfalls with fixes), the foundation for future plugin work.
 
-## 已知限制
+## Known limits
 
-- 扫描间隔内完成的 one-shot 子代理最长存活一个扫描周期
-- 依赖系统 `zstd` 命令
-- 根治性修复在上游：projcache 陈旧会话淘汰 / storage-json 增量写，见 [deepseek-harness Discussion #1550](https://github.com/deepseek-ai/deepseek-harness/discussions/1550)
+- A finished one-shot subagent survives at most one scan interval
+- Requires the system `zstd` CLI
+- The root fix lives upstream: projcache stale-session eviction / incremental storage writes, see [deepseek-harness Discussion #1550](https://github.com/deepseek-ai/deepseek-harness/discussions/1550)
 
-## 许可证
+## License
 
 [Apache-2.0](LICENSE)
