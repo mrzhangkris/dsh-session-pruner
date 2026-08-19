@@ -8,9 +8,26 @@
     "lib",
     "cordis.patch.yml"
   ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "session",
+    "lifecycle",
+    "subagent",
+    "cleanup",
+    "projcache"
+  ],
+  "license": "Apache-2.0",
+  "author": "mrzhangkris",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrzhangkris/dsh-session-lifecycle.git"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   }
 }
+
