@@ -178,6 +178,20 @@ node zlib 的 `zstdDecompressSync`/流式都只处理第一帧。dsh 内部为�
 - **冷会话（已 end-seed）不在内存 store**——删它们不会触发任何 host 推送，
   client 列表靠 `refreshList()` 重拉。
 
+### 2.8 session/end-seed 语义 —— 坑 11（判定陷阱）
+
+**`session/end-seed` 不是「会话完成」标记，只在会话真正 dispose 时才写入**。
+大量子代理完成工作（最后事件 `assistant/message → step/end → turn/end`）但会话对象
+没被 dispose（live 残留、进程重启丢 dispose）→ 磁盘上永远没有 end-seed。
+
+以此为「完成判定」会**永远清理不了这些会话**（运行中保护一直拦着 → 堆积）。
+
+**正确判定组合**：
+1. `ended`（有 end-seed）→ 视为完成
+2. **兜底**：`turn/end` 后 mtime 闲置超过宽限（如 1h）→ 视为死会话
+3. **最小存活宽限**：即使判定完成，mtime 距今 <N 分钟（默认 3）→ 不清理（防误删收尾/引用）
+4. live 保护：内存 store 挂着的不清理
+
 ## 3. Client 半侧开发
 
 ### 3.1 bundle 格式（手写，无构建链）
@@ -309,6 +323,7 @@ pnpm clean --lockfile && pnpm install   # 重建 lockfile，自动补 integrity
 | 8 | guard 回滚 | 插件崩溃 → profile 回滚 → 插件被移除 | 恢复良好快照 + 重装 |
 | 9 | 改名丢配置/消失 | NS 变配置丢；包名变 bundles 丢 | NS 不变；补 bundles |
 | 10 | tarball 无 integrity | pnpm 操作 supply-chain 拒绝 | `pnpm clean --lockfile` 重建 |
+| 11 | end-seed 非完成标记 | 判定卡死永远清理不了 | end-seed + mtime 闲置兜底 + 最小存活宽限 |
 
 ## 6. 测试模式
 
