@@ -19,7 +19,7 @@ Managing session lifecycle (this plugin) is the root fix: no session accumulatio
 
 | Session type | Trigger | Action | Default |
 |---|---|---|---|
-| **one-shot subagent** | log contains `session/end-seed` (finished) | archive/delete at next scan | 3min interval |
+| **one-shot subagent** | log contains `session/end-seed` (finished) | archive/delete at next scan | 30min interval |
 | **continuable subagent** | idle over N days | archive (recoverable) | off (0 days) |
 | **main session** | idle over N days | archive (recoverable) | off (0 days) |
 | **any type** | total exceeds capacity cap | recycle by `one-shot → continuable → main` + oldest | 400 |
@@ -46,7 +46,7 @@ A "delete directly" mode (no archive, irreversible) is also available.
 ## How it works
 
 ```
-scan (scheduled, default 3min)
+scan (scheduled, default 30min)
   ├─ pruneArchive: physically delete expired archive sessions
   ├─ iterate ~/.dsh/sessions/*/ decompress log (system zstd, multi-frame)
   │     ├─ origin: main | subagent       (session header)
@@ -78,11 +78,11 @@ Restart dsh web after install (`launchctl kickstart -k gui/$(id -u)/com.deepseek
 
 ## Configuration (settings panel, hot reload)
 
-After install, open **Settings → Plugins → 会话生命周期管理** card. All 8 options save with hot reload (no restart):
+After install, open **Settings → Plugins → 会话生命周期管理** card. All 9 options save with hot reload (no restart):
 
 | Field | Default | Description |
 |---|---|---|
-| Scan interval (min) | 3 | cleanup loop period |
+| Scan interval (min) | 30 | cleanup loop period |
 | Capacity cap (sessions) | 400 | recycle by priority + oldest when exceeded |
 | UI refresh interval (s) | 30 | GUI session list refresh period |
 | Archive retention (hours) | 24 | physical delete after retention |
@@ -90,16 +90,17 @@ After install, open **Settings → Plugins → 会话生命周期管理** card. 
 | Continuable idle archive (days) | 0 | archive after N idle days, 0 = off |
 | Main idle archive (days) | 0 | archive after N idle days, 0 = off |
 | Clean main on overflow | off | main participates in capacity recycling |
+| One-shot min survival (min) | 3 | newly finished subagents are not cleaned within N minutes (protects finishing/references) |
 
-Env vars (fallback, panel wins): `DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS`.
+Env vars (fallback, panel wins): `DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`.
 
 ## Logs
 
 Output in guard `server-*.out.log`:
 
 ```
-[session-lifecycle] armed: interval=3min cap=100 cleanMain=false
-[session-lifecycle] hot-reloaded: interval=3min cap=100 ... contIdle=1d mainIdle=2d
+[session-lifecycle] armed: interval=30min cap=100 cleanMain=false
+[session-lifecycle] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
 [session-lifecycle] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
 [session-lifecycle] archive pruned: 2 expired
 ```

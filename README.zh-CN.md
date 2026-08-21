@@ -19,7 +19,7 @@ DSH（DeepSeek Harness）的 `session_projcache.json` 缓存每个会话的完�
 
 | 会话类型 | 触发 | 动作 | 默认 |
 |---|---|---|---|
-| **one-shot 子代理** | 日志出现 `session/end-seed`（完成） | 下一轮扫描归档/删除 | 扫描间隔 3min |
+| **one-shot 子代理** | 日志出现 `session/end-seed`（完成） | 下一轮扫描归档/删除 | 扫描间隔 30min |
 | **continuable 子代理** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
 | **主会话（main）** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
 | **任意类型** | 总量超过容量保底 | 按「one-shot → continuable → main」+ 最旧回收 | 400 个 |
@@ -46,7 +46,7 @@ mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
 ## 工作原理
 
 ```
-扫描（定时，默认 3min）
+扫描（定时，默认 30min）
   ├─ pruneArchive：归档目录超期物理删除
   ├─ 遍历 ~/.dsh/sessions/*/ 解压会话日志（系统 zstd，多帧）
   │     ├─ origin: main | subagent       （会话头）
@@ -78,11 +78,11 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 
 ## 配置（设置面板，热加载）
 
-安装后打开 **设置 → 插件配置 → 会话生命周期管理** 卡片，8 项配置保存即热加载（无需重启）：
+安装后打开 **设置 → 插件配置 → 会话生命周期管理** 卡片，9 项配置保存即热加载（无需重启）：
 
 | 字段 | 默认 | 说明 |
 |---|---|---|
-| 扫描间隔（分钟） | 3 | 清理循环周期 |
+| 扫描间隔（分钟） | 30 | 清理循环周期 |
 | 容量保底（会话数） | 400 | 超限按优先级+最旧回收 |
 | 界面刷新间隔（秒） | 30 | GUI 会话列表自动刷新周期 |
 | 归档保留（小时） | 24 | 归档目录到期物理删除 |
@@ -90,16 +90,17 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 | 可续子代理闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
 | 主会话闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
 | 超限时清理主会话 | 关 | 容量超限时 main 参与回收 |
+| one-shot 最小存活宽限（分钟） | 3 | 刚完成的子代理 N 分钟内不清理，防误删收尾/引用 |
 
-环境变量（兜底，面板配置优先）：`DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS`。
+环境变量（兜底，面板配置优先）：`DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`。
 
 ## 日志
 
 输出在 guard 的 `server-*.out.log`：
 
 ```
-[session-lifecycle] armed: interval=3min cap=100 cleanMain=false
-[session-lifecycle] hot-reloaded: interval=3min cap=100 ... contIdle=1d mainIdle=2d
+[session-lifecycle] armed: interval=30min cap=100 cleanMain=false
+[session-lifecycle] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
 [session-lifecycle] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
 [session-lifecycle] archive pruned: 2 expired
 ```
