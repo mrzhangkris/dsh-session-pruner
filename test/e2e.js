@@ -12,7 +12,7 @@ const tmpHome = await mkdtemp(join(tmpdir(), 'dsh-pruner-e2e-'))
 process.env.DSH_HOME = tmpHome
 process.env.DSH_SESSION_LIFECYCLE_ONE_SHOT_MIN_AGE_MINUTES = '0'
 
-const { runOnce, scanSessions } = await import('../lib/index.js')
+const { runOnce, scanSessions, enqueueCandidate, __setActiveCtxForTest } = await import('../lib/index.js')
 
 const TEST_WS = '--e2e-test--'
 const TEST_SID = 'e2e-fake-one-shot-0001'
@@ -57,6 +57,27 @@ if (exists) {
 }
 console.log('✅ one-shot 会话已按策略删除')
 
-// 5) 清理临时 DSH_HOME
+// 6) 事件驱动即时归档路径（Step 1）：subagent/end 事件 → 秒级归档（不等扫描）
+const TEST_SID2 = 'e2e-fake-event-0002'
+const TEST_DIR2 = join(tmpHome, 'sessions', TEST_WS, TEST_SID2)
+await mkdir(TEST_DIR2, { recursive: true })
+const plainPath2 = join(TEST_DIR2, 'plain.jsonl')
+await writeFile(plainPath2, lines.map((l) => l.replace(TEST_SID, TEST_SID2)).join('\n') + '\n')
+execFileSync('zstd', ['-q', '-f', plainPath2, '-o', join(TEST_DIR2, 'session.jsonl.zstd')])
+await rm(plainPath2)
+
+__setActiveCtxForTest(mockCtx)
+enqueueCandidate(TEST_SID2) // 模拟 subagent/end 事件到达
+// 宽限 0（环境变量已设）→ 500ms 批窗口后自动 flush 并归档
+await new Promise((r) => setTimeout(r, 1500))
+const exists2 = await import('node:fs/promises').then((m) => m.access(TEST_DIR2).then(() => true).catch(() => false))
+if (exists2) {
+  console.error('❌ 事件驱动归档失败：目录仍在（未走秒级路径）')
+  await rm(tmpHome, { recursive: true, force: true })
+  process.exit(1)
+}
+console.log('✅ 事件驱动路径：one-shot 完成事件 → 秒级归档（未等定时扫描）')
+
+// 7) 清理临时 DSH_HOME
 await rm(tmpHome, { recursive: true, force: true })
 console.log('✅ e2e 通过')
