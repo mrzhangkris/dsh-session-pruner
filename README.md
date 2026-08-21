@@ -58,7 +58,11 @@ scan (scheduled, default 30min)
   └─ each archive also: purge projcache row + workspace accounting
 ```
 
-GUI sync: the client calls `sessions.refreshList()` every `uiRefreshSeconds` seconds, so cleaned sessions disappear from the sidebar automatically — no page reload needed.
+GUI sync: every `uiRefreshSeconds` seconds the client refreshes both data
+sources — the main session list via `refreshList()` (cleaned sessions vanish
+from the sidebar) and each known parent's subagent catalog via
+`refreshSubagents()` (archived continuable subagents vanish from the task
+panel/subagent menu). No page reload needed.
 
 ## Install
 
