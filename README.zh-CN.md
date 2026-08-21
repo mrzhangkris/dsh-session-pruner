@@ -46,21 +46,29 @@ mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
 ## 工作原理
 
 ```
-扫描（定时，默认 30min）
-  ├─ pruneArchive：归档目录超期物理删除
-  ├─ 遍历 ~/.dsh/sessions/*/ 解压会话日志（系统 zstd，多帧）
-  │     ├─ origin: main | subagent       （会话头）
-  │     ├─ mode: one-shot | continuable  （subagent/descriptor 事件）
-  │     └─ ended: 是否含 session/end-seed
-  ├─ one-shot + ended ──→ 归档（archiveMode）
-  ├─ continuable/main 闲置 N 天 ──→ 归档
-  ├─ 总量 > cap ──→ 按优先级+最旧 归档（跳过运行中/live）
-  └─ 每次归档连带：删 projcache 行 + workspace 记账
+双轨触发（事件为热路径，磁盘为权威）
+  ┌─ 事件驱动（秒级）：subagent/end + agent/disposed
+  │     ├─ 500ms 批窗口合并风暴 → oneShotMinAge 宽限复查
+  │     └─ 单会话判定（内存优先，磁盘只解压一个）→ 归档
+  └─ 定时对账（兜底，默认 60min）
+        ├─ pruneArchive：归档目录超期物理删除
+        ├─ 遍历 ~/.dsh/sessions/*/ 解压会话日志（系统 zstd，多帧）
+        │     ├─ origin: main | subagent       （会话头）
+        │     ├─ mode: one-shot | continuable  （subagent/descriptor 事件）
+        │     └─ ended: 是否含 session/end-seed
+        ├─ one-shot + ended ──→ 归档（archiveMode）
+        ├─ continuable/main 闲置 N 天 ──→ 归档
+        ├─ 总量 > cap ──→ 按优先级+最旧 归档（跳过运行中/live）
+        └─ 每次归档连带：删 projcache 行 + workspace 记账
 ```
 
-GUI 同步：client 每 `uiRefreshSeconds` 秒刷新两套数据源——主会话列表
-`refreshList()`（侧边栏自动消失）+ 各父会话子代理目录 `refreshSubagents()`
-（任务管理面板/子代理目录中的已归档可续子代理条目同步消失），无需刷新页面。
+GUI 同步双轨（变更驱动为主，全量兜底为辅）：
+- **dirty-flag（主路径）**：host 每次归档写内存变更日志（单调 seq）；client 每 3s
+  轮询 `/plugins/dsh-session-pruner/archived`，只有有变更才发 `refreshList()`
+  + `refreshSubagents()`——侧边栏/任务管理面板秒级一致，无变更零 RPC。
+- **全量兜底**：client 每 `uiRefreshSeconds` 秒刷新两套数据源——主会话列表
+  `refreshList()` + 各父会话子代理目录 `refreshSubagents()`（dirty-flag
+  失效（host 旧版/路由不可用）时兜底，无需刷新页面）。
 
 ## 安装
 
@@ -84,9 +92,9 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 
 | 字段 | 默认 | 说明 |
 |---|---|---|
-| 扫描间隔（分钟） | 30 | 清理循环周期 |
+| 扫描间隔（分钟） | 60 | 对账兜底周期（事件驱动为主路径） |
 | 容量保底（会话数） | 400 | 超限按优先级+最旧回收 |
-| 界面刷新间隔（秒） | 30 | GUI 会话列表自动刷新周期 |
+| 界面兜底刷新间隔（秒） | 30 | dirty-flag 为主（3s 变更检测），此为全量兜底 |
 | 归档保留（小时） | 24 | 归档目录到期物理删除 |
 | 归档方式 | 归档 | 归档（可恢复）/ 直接删除（不可恢复） |
 | 可续子代理闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
