@@ -58,7 +58,9 @@ mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
   └─ 每次归档连带：删 projcache 行 + workspace 记账
 ```
 
-GUI 同步：client 每 `uiRefreshSeconds` 秒调 `sessions.refreshList()`，清理结果自动从侧边栏消失，无需刷新页面。
+GUI 同步：client 每 `uiRefreshSeconds` 秒刷新两套数据源——主会话列表
+`refreshList()`（侧边栏自动消失）+ 各父会话子代理目录 `refreshSubagents()`
+（任务管理面板/子代理目录中的已归档可续子代理条目同步消失），无需刷新页面。
 
 ## 安装
 
