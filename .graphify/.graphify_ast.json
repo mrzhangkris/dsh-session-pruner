@@ -1,0 +1,749 @@
+{
+  "nodes": [
+    {
+      "id": "lib_client",
+      "label": "client.js",
+      "file_type": "code",
+      "source_file": "lib/client.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "lib_client_valuefield",
+      "label": "ValueField()",
+      "file_type": "code",
+      "source_file": "lib/client.js",
+      "source_location": "L32"
+    },
+    {
+      "id": "lib_client_lifecyclecard",
+      "label": "LifecycleCard()",
+      "file_type": "code",
+      "source_file": "lib/client.js",
+      "source_location": "L58"
+    },
+    {
+      "id": "lib_client_apply",
+      "label": "apply()",
+      "file_type": "code",
+      "source_file": "lib/client.js",
+      "source_location": "L221"
+    },
+    {
+      "id": "lib_index",
+      "label": "index.js",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "lib_index_execfileasync",
+      "label": "execFileAsync",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "lib_index_inject",
+      "label": "inject",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L34"
+    },
+    {
+      "id": "lib_index_ns",
+      "label": "NS",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L37"
+    },
+    {
+      "id": "lib_index_config",
+      "label": "Config",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L40"
+    },
+    {
+      "id": "lib_index_sessions_root",
+      "label": "SESSIONS_ROOT",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L62"
+    },
+    {
+      "id": "lib_index_archive_root",
+      "label": "ARCHIVE_ROOT",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L64"
+    },
+    {
+      "id": "lib_index_runtime",
+      "label": "runtime",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L67"
+    },
+    {
+      "id": "lib_index_priority",
+      "label": "priority()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L85"
+    },
+    {
+      "id": "lib_index_decompresslog",
+      "label": "decompressLog()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L92"
+    },
+    {
+      "id": "lib_index_decodesession",
+      "label": "decodeSession()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L115"
+    },
+    {
+      "id": "lib_index_scansessions",
+      "label": "scanSessions()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L149"
+    },
+    {
+      "id": "lib_index_archivesession",
+      "label": "archiveSession()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L182"
+    },
+    {
+      "id": "lib_index_prunearchive",
+      "label": "pruneArchive()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L239"
+    },
+    {
+      "id": "lib_index_runonce",
+      "label": "runOnce()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L280"
+    },
+    {
+      "id": "lib_index_apply",
+      "label": "apply()",
+      "file_type": "code",
+      "source_file": "lib/index.js",
+      "source_location": "L353"
+    },
+    {
+      "id": "test_dry_run",
+      "label": "dry-run.js",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_dry_run_execfileasync",
+      "label": "execFileAsync",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "test_dry_run_sessions_root",
+      "label": "SESSIONS_ROOT",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L10"
+    },
+    {
+      "id": "test_dry_run_decompresslog",
+      "label": "decompressLog()",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L12"
+    },
+    {
+      "id": "test_dry_run_decodesession",
+      "label": "decodeSession()",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L28"
+    },
+    {
+      "id": "test_dry_run_stats",
+      "label": "stats",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L57"
+    },
+    {
+      "id": "test_dry_run_noend",
+      "label": "noEnd",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L58"
+    },
+    {
+      "id": "test_dry_run_errs",
+      "label": "errs",
+      "file_type": "code",
+      "source_file": "test/dry-run.js",
+      "source_location": "L59"
+    },
+    {
+      "id": "test_e2e",
+      "label": "e2e.js",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_e2e_test_dir",
+      "label": "TEST_DIR",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L19"
+    },
+    {
+      "id": "test_e2e_now",
+      "label": "now",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L22"
+    },
+    {
+      "id": "test_e2e_lines",
+      "label": "lines",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L23"
+    },
+    {
+      "id": "test_e2e_plainpath",
+      "label": "plainPath",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L30"
+    },
+    {
+      "id": "test_e2e_hit",
+      "label": "hit",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L39"
+    },
+    {
+      "id": "test_e2e_mockctx",
+      "label": "mockCtx",
+      "file_type": "code",
+      "source_file": "test/e2e.js",
+      "source_location": "L48"
+    }
+  ],
+  "edges": [
+    {
+      "source": "lib_client",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/client.js",
+      "source_location": "L12",
+      "weight": 1
+    },
+    {
+      "source": "lib_client",
+      "target": "lib_client_valuefield",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/client.js",
+      "source_location": "L32",
+      "weight": 1
+    },
+    {
+      "source": "lib_client",
+      "target": "lib_client_lifecyclecard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/client.js",
+      "source_location": "L58",
+      "weight": 1
+    },
+    {
+      "source": "lib_client",
+      "target": "lib_client_apply",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/client.js",
+      "source_location": "L221",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "node_child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L2",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "node_util",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L3",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L4",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "dsh_settings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L5",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "schemastery",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L6",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_execfileasync",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L8",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_inject",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L34",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_ns",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L37",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_config",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L40",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_sessions_root",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L62",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_archive_root",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L64",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_runtime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L67",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_priority",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L85",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_decompresslog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L92",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_decodesession",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L115",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_scansessions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L149",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_archivesession",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L182",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_prunearchive",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L239",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_runonce",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L280",
+      "weight": 1
+    },
+    {
+      "source": "lib_index",
+      "target": "lib_index_apply",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L353",
+      "weight": 1
+    },
+    {
+      "source": "lib_index_decompresslog",
+      "target": "lib_index_execfileasync",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L94",
+      "weight": 1
+    },
+    {
+      "source": "lib_index_scansessions",
+      "target": "lib_index_decompresslog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L168",
+      "weight": 1
+    },
+    {
+      "source": "lib_index_scansessions",
+      "target": "lib_index_decodesession",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L174",
+      "weight": 1
+    },
+    {
+      "source": "lib_index_runonce",
+      "target": "lib_index_prunearchive",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L281",
+      "weight": 1
+    },
+    {
+      "source": "lib_index_runonce",
+      "target": "lib_index_scansessions",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L282",
+      "weight": 1
+    },
+    {
+      "source": "lib_index_runonce",
+      "target": "lib_index_archivesession",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/index.js",
+      "source_location": "L304",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L3",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "node_child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L4",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "node_util",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L5",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L6",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_execfileasync",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L8",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_sessions_root",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L10",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_decompresslog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L12",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_decodesession",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L28",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_stats",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L57",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_noend",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L58",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run",
+      "target": "test_dry_run_errs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L59",
+      "weight": 1
+    },
+    {
+      "source": "test_dry_run_decompresslog",
+      "target": "test_dry_run_execfileasync",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "test/dry-run.js",
+      "source_location": "L14",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L3",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "node_child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L4",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L5",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "node_os",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L6",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "test_e2e_test_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L19",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "test_e2e_now",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L22",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "test_e2e_lines",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L23",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "test_e2e_plainpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L30",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "test_e2e_hit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L39",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "test_e2e_mockctx",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L48",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "users_zhangpeng_documents_dsh_session_pruner_lib_index_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L15",
+      "weight": 1
+    },
+    {
+      "source": "test_e2e",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "test/e2e.js",
+      "source_location": "L52",
+      "weight": 1
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "hyperedges": []
+}

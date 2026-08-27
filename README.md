@@ -104,17 +104,17 @@ After install, open **Settings → Plugins → 会话生命周期管理** card. 
 | Clean main on overflow | off | main participates in capacity recycling |
 | One-shot min survival (min) | 3 | newly finished subagents are not cleaned within N minutes (protects finishing/references) |
 
-Env vars (fallback, panel wins): `DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`.
+Env vars (fallback, panel wins): `DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`.
 
 ## Logs
 
 Output in guard `server-*.out.log`:
 
 ```
-[session-lifecycle] armed: interval=30min cap=100 cleanMain=false
-[session-lifecycle] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
-[session-lifecycle] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
-[session-lifecycle] archive pruned: 2 expired
+[dsh-session-pruner] armed: interval=30min cap=100 cleanMain=false
+[dsh-session-pruner] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
+[dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
+[dsh-session-pruner] archive pruned: 2 expired
 ```
 
 `cache=true/false` tells whether the projection cache row was purged along with the session.

@@ -1,0 +1,10 @@
+node_modules/
+.git/
+build/
+dist/
+__pycache__/
+*.pyc
+.venv/
+site-packages/
+*.egg-info/
+备份/

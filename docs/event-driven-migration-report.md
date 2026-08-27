@@ -210,7 +210,7 @@ ctx.on('session/created', () => {
 **方案 B（零轮询推送，进取但需验证）——借 `settings/document-updated` 白名单通道**：
 
 - 已核实：host `dsh-settings` 发 `(ns, revision)`（`dsh-settings/lib/index.js:526`），在 `API_REMOTE_FORWARDED_EVENTS` 白名单内（`dsh-api-remotes/lib/index.js:18-31`）→ apiproxy 转成 `host/remote-event` → client `ctx.get('remote').$on('settings/document-updated', …)`（`dsh-client-ui-settings/lib/client.js:1342` 就是这么订阅的）。
-- pruner host 每归档一批，`ctx.emit('settings/document-updated', NS, revision+1)`；client 订阅并过滤 `ns === 'session-lifecycle'` → 触发 `refreshList` + `refreshSubagents`。
+- pruner host 每归档一批，`ctx.emit('settings/document-updated', NS, revision+1)`；client 订阅并过滤 `ns === 'dsh-session-pruner'` → 触发 `refreshList` + `refreshSubagents`。
 - 风险与验证点：a) 该事件同时会触发官方 settings mirror 重载（一次 describe RPC，罕见、可接受）；b) 需 e2e 验证插件 `ctx.emit` 能到达 apiproxy 的转发监听（`ctx.emit` 是全局 dispatch，预期可达）；c) 事件丢失无感知——所以**无论如何都保留一条慢兜底轮询（如 5–10min）**。
 
 **两条路径共同的兜底**：保留现有 `refreshList` 轮询，但间隔放宽（如 300s），仅在推送失效时兜底。

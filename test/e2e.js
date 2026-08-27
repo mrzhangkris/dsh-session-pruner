@@ -10,7 +10,7 @@ const tmpHome = await mkdtemp(join(tmpdir(), 'dsh-pruner-e2e-'))
 // oneShotMinAgeMinutes=0 关闭 3 分钟宽限：测试会话刚创建（mtime 最新），
 // 否则会因「完成不足 3 分钟」被跳过，断言永远失败。
 process.env.DSH_HOME = tmpHome
-process.env.DSH_SESSION_LIFECYCLE_ONE_SHOT_MIN_AGE_MINUTES = '0'
+process.env.DSH_SESSION_PRUNER_ONE_SHOT_MIN_AGE_MINUTES = '0'
 
 const { runOnce, scanSessions, enqueueCandidate, __setActiveCtxForTest } = await import('../lib/index.js')
 

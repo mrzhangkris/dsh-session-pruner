@@ -1,4 +1,4 @@
-# session-lifecycle bundle patch：把插件挂进 profile
+# dsh-session-pruner bundle patch：把插件挂进 profile
 - insert:
-    - id: session-lifecycle
+    - id: dsh-session-pruner
       name: 'dsh-session-pruner'
