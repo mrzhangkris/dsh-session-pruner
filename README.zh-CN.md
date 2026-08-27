@@ -102,17 +102,17 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 | 超限时清理主会话 | 关 | 容量超限时 main 参与回收 |
 | one-shot 最小存活宽限（分钟） | 3 | 刚完成的子代理 N 分钟内不清理，防误删收尾/引用 |
 
-环境变量（兜底，面板配置优先）：`DSH_SESSION_LIFECYCLE_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`。
+环境变量（兜底，面板配置优先）：`DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`。
 
 ## 日志
 
 输出在 guard 的 `server-*.out.log`：
 
 ```
-[session-lifecycle] armed: interval=30min cap=100 cleanMain=false
-[session-lifecycle] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
-[session-lifecycle] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
-[session-lifecycle] archive pruned: 2 expired
+[dsh-session-pruner] armed: interval=30min cap=100 cleanMain=false
+[dsh-session-pruner] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
+[dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
+[dsh-session-pruner] archive pruned: 2 expired
 ```
 
 `cache=true/false` 表示 projcache 缓存行是否连带清理成功。

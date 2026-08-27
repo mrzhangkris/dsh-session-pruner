@@ -1,0 +1,417 @@
+{
+  "nodes": [
+    {
+      "id": "doc:readme",
+      "label": "dsh-session-pruner README",
+      "file_type": "document",
+      "source_file": "README.md"
+    },
+    {
+      "id": "doc:readme-zh",
+      "label": "dsh-session-pruner 中文说明",
+      "file_type": "document",
+      "source_file": "README.zh-CN.md"
+    },
+    {
+      "id": "doc:dev-guide",
+      "label": "DSH 插件开发实践指南",
+      "file_type": "document",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "id": "code:cordis-patch",
+      "label": "cordis.patch.yml bundle patch",
+      "file_type": "code",
+      "source_file": "cordis.patch.yml"
+    },
+    {
+      "id": "concept:plugin",
+      "label": "dsh-session-pruner plugin",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:projcache",
+      "label": "session_projcache.json",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:one-shot",
+      "label": "one-shot subagent",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:continuable",
+      "label": "continuable subagent",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:main-session",
+      "label": "main session",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:capacity-cap",
+      "label": "Capacity cap recycling",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:archive-first",
+      "label": "Archive-first recoverable deletion",
+      "file_type": "rationale",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:gui-sync",
+      "label": "GUI sync via refreshList",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:multiframe-zstd",
+      "label": "Multi-frame zstd log parsing",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:zstd-cli",
+      "label": "System zstd CLI dependency",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:cache-purge",
+      "label": "projcache row purge",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:hot-reload",
+      "label": "Settings panel hot reload",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:end-seed",
+      "label": "session/end-seed semantics",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "id": "concept:guard-rollback",
+      "label": "guard rollback protection",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "id": "concept:bundle-whitelist",
+      "label": "Bundles whitelist registration",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "id": "concept:cache-bloat",
+      "label": "Projection cache bloat / event-loop stall",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:archive-dir",
+      "label": "~/.dsh/sessions-archive/ directory",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:workspace-accounting",
+      "label": "Workspace accounting consistency",
+      "file_type": "concept",
+      "source_file": "README.md"
+    },
+    {
+      "id": "concept:upstream-fix",
+      "label": "Root fix upstream: projcache eviction / incremental writes",
+      "file_type": "rationale",
+      "source_file": "README.md"
+    },
+    {
+      "id": "external:discussion-1550",
+      "label": "deepseek-harness Discussion #1550",
+      "file_type": "paper",
+      "source_file": "README.md"
+    }
+  ],
+  "edges": [
+    {
+      "source": "doc:readme-zh",
+      "target": "doc:readme",
+      "relation": "translation_of",
+      "confidence": "INFERRED",
+      "source_file": "README.zh-CN.md"
+    },
+    {
+      "source": "doc:readme",
+      "target": "concept:plugin",
+      "relation": "mentions",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "doc:readme-zh",
+      "target": "concept:plugin",
+      "relation": "mentions",
+      "confidence": "EXTRACTED",
+      "source_file": "README.zh-CN.md"
+    },
+    {
+      "source": "doc:dev-guide",
+      "target": "concept:plugin",
+      "relation": "documents",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "code:cordis-patch",
+      "target": "concept:plugin",
+      "relation": "registers",
+      "confidence": "EXTRACTED",
+      "source_file": "cordis.patch.yml"
+    },
+    {
+      "source": "concept:cache-bloat",
+      "target": "concept:plugin",
+      "relation": "motivates",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:cache-bloat",
+      "relation": "addresses",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:one-shot",
+      "relation": "manages",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:continuable",
+      "relation": "manages",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:main-session",
+      "relation": "manages",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:capacity-cap",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:archive-first",
+      "relation": "follows",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:archive-first",
+      "target": "concept:plugin",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:one-shot",
+      "target": "concept:archive-first",
+      "relation": "archived_by",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:continuable",
+      "target": "concept:archive-first",
+      "relation": "archived_by",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:main-session",
+      "target": "concept:archive-first",
+      "relation": "archived_by",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:gui-sync",
+      "relation": "enables",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:multiframe-zstd",
+      "relation": "uses_technique",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:multiframe-zstd",
+      "target": "concept:zstd-cli",
+      "relation": "depends_on",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:zstd-cli",
+      "relation": "requires",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:cache-purge",
+      "relation": "performs",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:hot-reload",
+      "relation": "supports",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:hot-reload",
+      "target": "concept:plugin",
+      "relation": "applies_to",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:end-seed",
+      "relation": "uses_for_detection",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:end-seed",
+      "target": "concept:one-shot",
+      "relation": "completion_marker_for",
+      "confidence": "AMBIGUOUS",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "doc:dev-guide",
+      "target": "concept:end-seed",
+      "relation": "documents",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "doc:dev-guide",
+      "target": "concept:guard-rollback",
+      "relation": "documents",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "doc:dev-guide",
+      "target": "concept:bundle-whitelist",
+      "relation": "documents",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "concept:guard-rollback",
+      "target": "concept:plugin",
+      "relation": "risk_for",
+      "confidence": "INFERRED",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "concept:bundle-whitelist",
+      "target": "code:cordis-patch",
+      "relation": "governs",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/DEVELOPMENT-GUIDE.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "external:discussion-1550",
+      "relation": "cites_upstream_issue",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "external:discussion-1550",
+      "target": "concept:upstream-fix",
+      "relation": "proposes",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:upstream-fix",
+      "relation": "delegates_upstream_fix_to",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:upstream-fix",
+      "target": "concept:plugin",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:archive-dir",
+      "relation": "moves_to",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:archive-dir",
+      "target": "concept:archive-first",
+      "relation": "enables",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    },
+    {
+      "source": "concept:plugin",
+      "target": "concept:workspace-accounting",
+      "relation": "maintains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md"
+    }
+  ],
+  "hyperedges": [],
+  "canonical_entities": [],
+  "mentions": [],
+  "occurrences": [],
+  "evidence": [],
+  "mappings": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

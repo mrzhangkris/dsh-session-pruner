@@ -57,7 +57,7 @@ dsh 启动时按 `dsh.profile.bundles` 列表（profile package.json 里）逐�
 ```yaml
 # 把插件挂进 profile
 - insert:
-    - id: session-lifecycle        # entry id（全局唯一）
+    - id: dsh-session-pruner        # entry id（全局唯一）
       name: 'dsh-session-pruner'   # 包名
 ```
 
@@ -108,7 +108,7 @@ const dispose = ctx.timer.interval(callback, ms)
 import { installSettingsSection, settingsNamespace } from '@deepseek-ai/dsh-settings'
 import z from '@deepseek-ai/schemastery'
 
-export const NS = settingsNamespace('session-lifecycle')  // 命名空间 = 配对 key
+export const NS = settingsNamespace('dsh-session-pruner')  // 命名空间 = 配对 key
 export const Config = z.object({
   intervalMinutes: z.number().min(1).max(1440).default(30),
 })
@@ -120,7 +120,7 @@ installSettingsSection(ctx, NS, Config, config, {
 ```
 
 **关键点**：
-- **NS 是配置段的持久化 key**（settings.yaml 的 `session-lifecycle:` 段）——**改名会丢配置**。
+- **NS 是配置段的持久化 key**（settings.yaml 的 `dsh-session-pruner:` 段）——**改名会丢配置**。
 - `onChange` 注册时立即触发一次；之后每次保存触发 → 热加载闭环。
 - settings 服务未挂载时 `installSettingsSection` **静默跳过**（不报错）——卡片不出现，
   插件本身照常工作（用 compose 配置）。
