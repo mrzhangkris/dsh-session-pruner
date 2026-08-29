@@ -64,7 +64,7 @@ dsh 启动时按 `dsh.profile.bundles` 列表（profile package.json 里）逐�
 ### Host 入口
 
 ```js
-export const name = 'session-pruner'          // cordis 插件名
+export const name = 'dsh-session-pruner'          // cordis 插件名
 export const inject = ['timer', 'storageDomain'] // 注入的服务（见坑 1）
 export function apply(ctx, config) { ... }    // 入口
 ```
@@ -110,7 +110,7 @@ import z from '@deepseek-ai/schemastery'
 
 export const NS = settingsNamespace('dsh-session-pruner')  // 命名空间 = 配对 key
 export const Config = z.object({
-  intervalMinutes: z.number().min(1).max(1440).default(30),
+  intervalMinutes: z.number().min(1).max(1440).default(60),
 })
 
 installSettingsSection(ctx, NS, Config, config, {
@@ -208,7 +208,7 @@ window.__ModuleLoader__.load({
     // 不能用 JSX——手写 createElement
     function apply(ctx) { ... }
     exports.apply = apply;
-    exports.name = 'session-pruner';
+    exports.name = 'dsh-session-pruner';
     exports.inject = ['slots', 'settingsScope'];
     return module.exports;
   },
