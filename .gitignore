@@ -1,1 +1,5 @@
 node_modules/
+.graphify/
+*.tgz
+*.log
+.DS_Store
