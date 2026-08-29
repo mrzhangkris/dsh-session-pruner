@@ -1,3 +1,9 @@
+## 0.2.1 (2026-08-29)
+
+### Fixed
+- 文档一致性：README 日志示例/表格默认值对齐 v0.2.0 代码（扫描间隔 30min→60min、cap 100→400）
+- DEVELOPMENT-GUIDE 代码示例对齐（name 改名遗漏、schema 默认值）
+
 # Changelog
 
 ## 0.2.0 (2026-08-28)
