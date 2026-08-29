@@ -1,3 +1,10 @@
+## 0.2.2 (2026-08-29)
+
+### Changed
+- package.json repository.url 加 git+ 前缀（消除 npm publish 规范化警告）
+- .graphify/ 图谱缓存移出源码仓库（进 .gitignore）
+
+
 ## 0.2.1 (2026-08-29)
 
 ### Fixed
