@@ -19,7 +19,7 @@ DSH（DeepSeek Harness）的 `session_projcache.json` 缓存每个会话的完�
 
 | 会话类型 | 触发 | 动作 | 默认 |
 |---|---|---|---|
-| **one-shot 子代理** | 日志出现 `session/end-seed`（完成） | 下一轮扫描归档/删除 | 扫描间隔 30min |
+| **one-shot 子代理** | 日志出现 `session/end-seed`（完成） | 下一轮扫描归档/删除 | 扫描间隔 60min |
 | **continuable 子代理** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
 | **主会话（main）** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
 | **任意类型** | 总量超过容量保底 | 按「one-shot → continuable → main」+ 最旧回收 | 400 个 |
@@ -109,8 +109,8 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 输出在 guard 的 `server-*.out.log`：
 
 ```
-[dsh-session-pruner] armed: interval=30min cap=100 cleanMain=false
-[dsh-session-pruner] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
+[dsh-session-pruner] armed: interval=60min cap=400 cleanMain=false
+[dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d
 [dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
 [dsh-session-pruner] archive pruned: 2 expired
 ```

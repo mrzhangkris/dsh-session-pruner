@@ -111,8 +111,8 @@ Env vars (fallback, panel wins): `DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_C
 Output in guard `server-*.out.log`:
 
 ```
-[dsh-session-pruner] armed: interval=30min cap=100 cleanMain=false
-[dsh-session-pruner] hot-reloaded: interval=30min cap=100 ... contIdle=1d mainIdle=2d
+[dsh-session-pruner] armed: interval=60min cap=400 cleanMain=false
+[dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d
 [dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
 [dsh-session-pruner] archive pruned: 2 expired
 ```
