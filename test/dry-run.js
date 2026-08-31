@@ -83,4 +83,4 @@ console.log('分类:', stats)
 console.log('未结束(运行中,保护不清):', noEnd.length, noEnd.slice(0, 5))
 console.log('解析失败:', errs.length)
 // 模拟 one-shot 清理动作：应删 0（当前无 one-shot）
-console.log('dry-run: 按当前策略会删除', stats.sub_one_shot, '个（当前库无 one-shot，预期 0）')
+console.log('dry-run: 当前库 one-shot 数', stats.sub_one_shot, '（仅统计，不执行清理）')

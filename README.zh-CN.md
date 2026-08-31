@@ -100,7 +100,7 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 | 可续子代理闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
 | 主会话闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
 | 超限时清理主会话 | 关 | 容量超限时 main 参与回收 |
-| one-shot 最小存活宽限（分钟） | 3 | 刚完成的子代理 N 分钟内不清理，防误删收尾/引用 |
+| one-shot 闲置归档阈值（分钟） | 3 | 所有 one-shot 闲置超 N 分钟即归档（有/无 end-seed 统一） |
 
 环境变量（兜底，面板配置优先）：`DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`。
 
@@ -111,7 +111,7 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 ```
 [dsh-session-pruner] armed: interval=60min cap=400 cleanMain=false
 [dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d
-[dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
+[dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot idle cache=true
 [dsh-session-pruner] archive pruned: 2 expired
 ```
 

@@ -188,9 +188,8 @@ node zlib 的 `zstdDecompressSync`/流式都只处理第一帧。dsh 内部为�
 
 **正确判定组合**：
 1. `ended`（有 end-seed）→ 视为完成
-2. **兜底**：`turn/end` 后 mtime 闲置超过宽限（如 1h）→ 视为死会话
-3. **最小存活宽限**：即使判定完成，mtime 距今 <N 分钟（默认 3）→ 不清理（防误删收尾/引用）
-4. live 保护：内存 store 挂着的不清理
+2. **闲置归档阈值**：所有 one-shot 闲置超 oneShotMinAgeMinutes 分钟即归档（默认 3 分钟；有/无 end-seed 统一阈值，配置项控制）
+3. live 保护：内存 store 挂着的不清理
 
 ## 3. Client 半侧开发
 
@@ -323,7 +322,7 @@ pnpm clean --lockfile && pnpm install   # 重建 lockfile，自动补 integrity
 | 8 | guard 回滚 | 插件崩溃 → profile 回滚 → 插件被移除 | 恢复良好快照 + 重装 |
 | 9 | 改名丢配置/消失 | NS 变配置丢；包名变 bundles 丢 | NS 不变；补 bundles |
 | 10 | tarball 无 integrity | pnpm 操作 supply-chain 拒绝 | `pnpm clean --lockfile` 重建 |
-| 11 | end-seed 非完成标记 | 判定卡死永远清理不了 | end-seed + mtime 闲置兜底 + 最小存活宽限 |
+| 11 | end-seed 非完成标记 | 判定卡死永远清理不了 | end-seed + mtime 闲置兜底 + 闲置归档阈值 |
 
 ## 6. 测试模式
 

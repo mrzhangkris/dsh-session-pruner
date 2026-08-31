@@ -25,6 +25,8 @@ Managing session lifecycle (this plugin) is the root fix: no session accumulatio
 | **any type** | total exceeds capacity cap | recycle by `one-shot → continuable → main` + oldest | 400 |
 | **archive directory** | kept over N hours | physically deleted | 24 hours |
 
+> **行为说明（v0.3+）**：one-shot 子代理统一按 `oneShotMinAgeMinutes`（默认 3 分钟）闲置阈值归档，有/无 end-seed 阈值一致。早期版本中「未写 end-seed 的 one-shot 需闲置满 1 小时才归档」的兜底已移除。
+
 ### Archive mechanism (recoverable)
 
 Cleaned sessions are **moved to `~/.dsh/sessions-archive/`** first (workspace/session-id structure preserved) — they disappear from the GUI immediately (the list only reads the sessions directory), but the files remain and can be restored manually:
@@ -113,7 +115,7 @@ Output in guard `server-*.out.log`:
 ```
 [dsh-session-pruner] armed: interval=60min cap=400 cleanMain=false
 [dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d
-[dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot done cache=true
+[dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot idle cache=true
 [dsh-session-pruner] archive pruned: 2 expired
 ```
 
