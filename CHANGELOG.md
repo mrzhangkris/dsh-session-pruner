@@ -1,3 +1,14 @@
+## 0.2.3 (2026-08-31)
+
+### Changed
+- 统一 one-shot 归档阈值：删除写死的 ONE_SHOT_GRACE_MS（无 end-seed 兜底 1 小时），有/无 end-seed 统一由 oneShotMinAgeMinutes 控制（默认 3 分钟），UI 配置真正生效
+- 配置项语义更新：oneShotMinAgeMinutes 从「最小存活宽限」改为「闲置归档阈值」
+- client 设置面板文案同步新语义
+
+### Fixed
+- dry-run 输出陈旧文案修正（不再误报「当前库无 one-shot」）
+- 文档同步：README/DEVELOPMENT-GUIDE 行为说明 + 判定组合去重
+
 ## 0.2.2 (2026-08-29)
 
 ### Changed
