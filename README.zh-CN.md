@@ -120,7 +120,7 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 
 ```
 [dsh-session-pruner] armed: interval=60min cap=400 cleanMain=false
-[dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d
+[dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d pinned=0
 [dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot idle cache=true
 [dsh-session-pruner] archive pruned: 2 expired
 ```
@@ -130,8 +130,10 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 ## 测试
 
 ```sh
+npm test               # 回归套件：审计 PoC 校验 + 完整 e2e（隔离的临时 DSH_HOME）
 node test/dry-run.js   # 只读扫描全库，验证识别逻辑（不删除）
 node test/e2e.js       # 构造 fake one-shot 会话，验证真实清理链路
+node test/poc-audit.js # 审计回归：ended 误判 / 双源漂移 / 归档孤儿 / pin 拦截
 ```
 
 ## 实现要点
@@ -139,7 +141,7 @@ node test/e2e.js       # 构造 fake one-shot 会话，验证真实清理链路
 - **多帧 zstd**：DSH 会话日志是多 zstd frame 拼接（append 写入），Node `zlib` 只解单帧，插件调用系统 `zstd` 命令（macOS: `brew install zstd`）
 - **缓存行删除**：`storageDomain.get('session_projcache').table('sessions').delete(id)` 走官方写链（原子持久化 + 内存同步）
 - **workspace 记账**：归档时同步从 workspace 域移除 sessionId，数据源与磁盘一致
-- **零 npm 依赖**：纯 Node 内置 + cordis 运行时注入
+- **零捆绑依赖**：运行时模块（`@deepseek-ai/dsh-settings`、`schemastery`）由 DSH 宿主提供，插件自身不携带依赖
 - **面板与热加载**：`installSettingsSection` + 手写 client 卡片（`__ModuleLoader__` bundle），`onChange` 即时重排定时器
 
 ## 开发文档
@@ -148,7 +150,8 @@ node test/e2e.js       # 构造 fake one-shot 会话，验证真实清理链路
 
 ## 已知限制
 
-- 扫描间隔内完成的 one-shot 子代理最长存活一个扫描周期
+- 完成事件丢失时（如 host 中途重启），已完成的 one-shot 子代理要等下一轮对账扫描才发现——最坏一个 `intervalMinutes`（默认 60 分钟）
+- mv 恢复的会话在打开前不受 live 保护——请 pin 住度过窗口期（见「归档机制」）
 - 依赖系统 `zstd` 命令
 - 根治性修复在上游：projcache 陈旧会话淘汰 / storage-json 增量写，见 [deepseek-harness Discussion #1550](https://github.com/deepseek-ai/deepseek-harness/discussions/1550)
 
