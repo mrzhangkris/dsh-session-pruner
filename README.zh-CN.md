@@ -4,7 +4,7 @@
 
 > 每类会话都有明确的归宿：跑完的一次性子代理自动归档、闲置的可续子代理/主会话归档、总量超限按优先级回收。**先归档（可恢复）再到期删除**，GUI 30 秒内自动同步，全程面板配置、热加载生效。
 
-[English](README.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner)
+[English](README.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner) · [![npm version](https://img.shields.io/npm/v/dsh-session-pruner.svg)](https://www.npmjs.com/package/dsh-session-pruner) · [更新日志](CHANGELOG.md)
 
 ## 背景
 
