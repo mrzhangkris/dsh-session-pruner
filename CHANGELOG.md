@@ -1,3 +1,13 @@
+## 0.2.4 (2026-08-31)
+
+### Fixed
+- S2 严重缺陷：scanSessions 闲置判定改用日志文件 mtime（DSH 追加写日志不更新目录 mtime → 运行中会话被误判闲置归档；delete 模式直接物理删除）
+- S3 安全加固：live 保护改为 fail-closed（store 异常视为 live 跳过，不误删）
+- S5 边界健壮：zstd 解压失败回退前检测魔数，避免二进制当 UTF-8 误判 ended
+- 扁鹊审查：decodeSession 头行判定仅限 i===0，防止事件行误当 header 覆盖 origin
+- S8 client 面板默认值（间隔 30→60），S9 保存失败重读重置
+- README Safety 段同步：运行中保护由 live 检查 + 日志 mtime 保证
+
 ## 0.2.3 (2026-08-31)
 
 ### Changed

@@ -40,8 +40,9 @@ A "delete directly" mode (no archive, irreversible) is also available.
 
 ### Safety (double protection)
 
-- **Running sessions are never touched**: logs without `session/end-seed` are never cleaned (checked in both the one-shot path and the capacity cap)
-- **live protection**: sessions still held in the in-memory session store (open/loading) are skipped
+- **Running sessions are never touched**: live sessions (still held in the in-memory session store, open/loading) are skipped — and the live check is **fail-closed**: a store query error treats the session as live, never deleting on uncertainty
+- **Idle = last log write**: idle is judged by the session log file mtime (last write time), not the directory mtime — DSH appends to `session.jsonl.zstd`, so active sessions keep refreshing their mtime and are never misjudged idle
+- **one-shot**: finished one-shot subagents are archived uniformly by the `oneShotMinAgeMinutes` idle threshold (with or without end-seed, same threshold); the capacity cap additionally skips sessions lacking `session/end-seed`
 - Main sessions do not participate in capacity recycling by default (configurable)
 - Per-action failure isolation: every action is try/catch wrapped
 
