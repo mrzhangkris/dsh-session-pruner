@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.2 (unreleased)
+## 0.3.2 (2026-09-03)
 
 ### Security
 - live 检查改 isLive 单一来源（fail-closed 完整化）：cordis registry.get 在 provider fiber 非 active（sessions 服务重载窗口）时返回 undefined 而非抛异常，旧版 try/catch 只覆盖抛异常路径——该窗口内 live 保护整体失效，delete 模式下最坏批量物理删除（不可恢复）。现在「服务缺失/接口缺失/查询异常」一律视为 live，宁可不删不可误删（runOnce 主循环/容量保底/事件路径三处共用，顺带消除三处重复）；agent/disposed 服务缺失时无脑入队也由 isLive 兜住
@@ -10,6 +10,7 @@
 - client dirty 判定去重：数字/枚举/列表原子判定（numDirty/modeDirty/pinnedDirty），高级区 badge 与总 dirty 共用 `advDirty`，不再两处展开同 4 字段
 - 清理冗余：`NS`/`Config` 去掉无外部消费方的多余 export（client bundle 无法 import host 模块）；删除 client 的 `require('react/jsx-runtime')` 迁移遗迹与 host 的 `debug: onChange fired` 调试日志；JSDoc 与 const 挤行的格式修正
 - `package.json` 加 `scripts.test`（poc 回归 + e2e），贡献者可直接 `npm test`
+- 文档体系化：新增 DESIGN（设计决策与不变量）/ TESTING（测试矩阵与验证金字塔）/ PROJECT-STATUS（新会话交接快照），DEVELOPMENT-GUIDE 同步 isLive 坑 12 与单一来源清单，README 双语挂文档导航
 
 ## 0.3.1 (2026-09-02)
 
