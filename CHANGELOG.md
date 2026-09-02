@@ -1,3 +1,11 @@
+## 0.2.5 (unreleased)
+
+### Fixed
+- 审计🔴a ended 判定改 JSON.parse 精判（先 includes 粗筛保性能）：旧版纯字符串包含会把「用户消息文本里出现 `session/end-seed` 字样」的行误判为已结束，绕过运行中保护——最讽刺的真实场景是在 DSH 里讨论/开发本插件的会话，闲置归档与容量保底路径可误删
+- 审计🟠b pruneArchive 不再因 archiveMode=delete 提前 return：从 archive 切到 delete 后，切换前已归档的会话会永久残留磁盘（保留期承诺作废）；归档目录的到期清理与当前归档模式无关
+- 审计🟠c dry-run 复用 lib 的 decodeSession/decompressLog（decompressLog 新增测试钩子导出）：旧版 dry-run 内嵌副本仍是扁鹊🟠a 头行判定修复前的逻辑，统计结果不代表生产行为
+- client 面板 intervalMinutes hint 文案改为「定时对账扫描周期」：原文案误写为 one-shot 存活时间（实为 oneShotMinAgeMinutes 语义），误导用户改错字段
+
 ## 0.2.4 (2026-08-31)
 
 ### Fixed
