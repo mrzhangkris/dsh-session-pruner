@@ -98,8 +98,6 @@ After installing (or upgrading), restart the dsh web daemon to load the new
 version (`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`) — config
 changes alone hot-reload without restart.
 
-Restart dsh web after install (`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`).
-
 ## Configuration (settings panel, hot reload)
 
 After install, open **Settings → Plugins → 会话生命周期管理** card. All 10 options save with hot reload (no restart). Six everyday options are visible by default; the four low-frequency fallbacks are tucked into an "Advanced" collapsible section (its title shows an unsaved-changes badge when applicable):
@@ -128,7 +126,7 @@ Output in guard `server-*.out.log`:
 
 ```
 [dsh-session-pruner] armed: interval=60min cap=400 cleanMain=false
-[dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d
+[dsh-session-pruner] hot-reloaded: interval=60min cap=400 ... contIdle=0d mainIdle=0d pinned=0
 [dsh-session-pruner] archived a1b2c3d4 (subagent/one-shot) one-shot idle cache=true
 [dsh-session-pruner] archive pruned: 2 expired
 ```
@@ -138,8 +136,10 @@ Output in guard `server-*.out.log`:
 ## Tests
 
 ```sh
+npm test               # regression suite: audit PoC checks + full e2e (isolated tmp DSH_HOME)
 node test/dry-run.js   # read-only full-library scan, verify classification (no deletion)
 node test/e2e.js       # create a fake one-shot session, verify the real cleanup path
+node test/poc-audit.js # audit regression: ended misjudgment / dual-source drift / archive orphans / pin
 ```
 
 ## Implementation notes
@@ -147,7 +147,7 @@ node test/e2e.js       # create a fake one-shot session, verify the real cleanup
 - **Multi-frame zstd**: DSH session logs are concatenated zstd frames (append writes); Node `zlib` decodes a single frame only, so the plugin shells out to the system `zstd` CLI (`brew install zstd` on macOS)
 - **Cache row purge**: `storageDomain.get('session_projcache').table('sessions').delete(id)` — the official write chain (atomic persistence + in-memory sync)
 - **Workspace accounting**: the session id is removed from the workspace domain on archive, keeping the data source consistent with disk
-- **Zero npm deps**: plain Node built-ins + cordis runtime injection
+- **Zero bundled deps**: runtime modules (`@deepseek-ai/dsh-settings`, `schemastery`) are provided by the DSH host; the plugin ships no dependencies of its own
 - **Panel + hot reload**: `installSettingsSection` + hand-written client card (`__ModuleLoader__` bundle), `onChange` re-schedules the timer instantly
 
 ## Developer guide
@@ -156,7 +156,8 @@ node test/e2e.js       # create a fake one-shot session, verify the real cleanup
 
 ## Known limits
 
-- A finished one-shot subagent survives at most one scan interval
+- If completion events are lost (host restart mid-run), a finished one-shot subagent is only picked up by the next reconcile scan — worst case one `intervalMinutes` (default 60min)
+- Restored (mv-back) sessions are not live-protected until opened — pin them to survive the window (see Archive mechanism)
 - Requires the system `zstd` CLI
 - The root fix lives upstream: projcache stale-session eviction / incremental storage writes, see [deepseek-harness Discussion #1550](https://github.com/deepseek-ai/deepseek-harness/discussions/1550)
 
