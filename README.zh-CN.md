@@ -34,6 +34,10 @@ DSH（DeepSeek Harness）的 `session_projcache.json` 缓存每个会话的完�
 ```sh
 # 恢复：mv 回 sessions 目录
 mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
+
+# ⚠️ 恢复后请立即 pin（或打开）该会话——打开前它不受 live 保护，
+# 一个扫描周期内若命中闲置判定（如 one-shot 超阈值、main 超闲置天数）
+# 会被再次归档。把会话 ID 加入设置卡片的「Pin 白名单」即可。
 ```
 
 也可选「直接删除」（不归档，不可恢复）。
@@ -91,7 +95,7 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 
 ## 配置（设置面板，热加载）
 
-安装后打开 **设置 → 插件配置 → 会话生命周期管理** 卡片，9 项配置保存即热加载（无需重启）：
+安装后打开 **设置 → 插件配置 → 会话生命周期管理** 卡片，10 项配置保存即热加载（无需重启）：
 
 | 字段 | 默认 | 说明 |
 |---|---|---|
@@ -104,8 +108,11 @@ dsh plugin --profile web add /path/to/dsh-session-pruner
 | 主会话闲置归档（天） | 0 | 超过 N 天未活动归档，0 = 关闭 |
 | 超限时清理主会话 | 关 | 容量超限时 main 参与回收 |
 | one-shot 闲置归档阈值（分钟） | 3 | 所有 one-shot 闲置超 N 分钟即归档（有/无 end-seed 统一） |
+| Pin 白名单（每行一个会话 ID） | 空 | 名单内会话永不自动清理（恢复会话后建议立即 pin） |
 
-环境变量（兜底，面板配置优先）：`DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`。
+卡片展开后还有**实时状态行**（30s 轮询）：归档数量与最早到期时间、会话总量（含超限提示）、最近一轮清理数量与时间、已固定数量。
+
+环境变量（兜底，面板配置优先）：`DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES` / `_PINNED_IDS`（逗号分隔）。
 
 ## 日志
 
