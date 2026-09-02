@@ -25,7 +25,7 @@ Managing session lifecycle (this plugin) is the root fix: no session accumulatio
 | **any type** | total exceeds capacity cap | recycle by `one-shot → continuable → main` + oldest | 400 |
 | **archive directory** | kept over N hours | physically deleted | 24 hours |
 
-> **行为说明（v0.3+）**：one-shot 子代理统一按 `oneShotMinAgeMinutes`（默认 3 分钟）闲置阈值归档，有/无 end-seed 阈值一致。早期版本中「未写 end-seed 的 one-shot 需闲置满 1 小时才归档」的兜底已移除。
+> **Behavior note (v0.2.3+)**: one-shot subagents are archived uniformly by the `oneShotMinAgeMinutes` idle threshold (default 3 minutes), with or without end-seed. The earlier fallback — "one-shot sessions without end-seed must stay idle a full hour before archiving" — has been removed.
 
 ### Archive mechanism (recoverable)
 
@@ -59,7 +59,7 @@ Dual-track triggers (events = hot path, disk = source of truth)
         │     ├─ origin: main | subagent       (session header)
         │     ├─ mode: one-shot | continuable  (subagent/descriptor event)
         │     └─ ended: contains session/end-seed
-        ├─ one-shot + ended ──→ archive (archiveMode)
+        ├─ one-shot idle over threshold ──→ archive (archiveMode)
         ├─ continuable/main idle N days ──→ archive
         ├─ total > cap ──→ recycle by priority + oldest (skip running/live)
         └─ each archive also: purge projcache row + workspace accounting

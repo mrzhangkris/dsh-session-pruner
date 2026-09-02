@@ -19,11 +19,13 @@ DSH（DeepSeek Harness）的 `session_projcache.json` 缓存每个会话的完�
 
 | 会话类型 | 触发 | 动作 | 默认 |
 |---|---|---|---|
-| **one-shot 子代理** | 日志出现 `session/end-seed`（完成） | 下一轮扫描归档/删除 | 扫描间隔 60min |
+| **one-shot 子代理** | `subagent/end` / `agent/disposed` 事件（+ 宽限） | 秒级归档（事件驱动） | 事件 + 3 分钟宽限 |
 | **continuable 子代理** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
 | **主会话（main）** | 闲置超过 N 天 | 归档（可恢复） | 关闭（0 天） |
 | **任意类型** | 总量超过容量保底 | 按「one-shot → continuable → main」+ 最旧回收 | 400 个 |
 | **归档目录** | 保留超过 N 小时 | 物理删除 | 24 小时 |
+
+> **行为说明（v0.2.3+）**：one-shot 子代理统一按 `oneShotMinAgeMinutes`（默认 3 分钟）闲置阈值归档，有/无 end-seed 阈值一致。早期版本中「未写 end-seed 的 one-shot 需闲置满 1 小时才归档」的兜底已移除。
 
 ### 归档机制（可恢复）
 
@@ -38,8 +40,9 @@ mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
 
 ### 安全保护（双保险）
 
-- **运行中保护**：日志无 `session/end-seed` 的会话**永不清理**（one-shot 路径和容量保底都检查）
-- **live 保护**：内存 session store 里还挂着的会话（被打开/加载中）跳过
+- **运行中的会话绝不动**：live 会话（内存 session store 里还挂着、被打开/加载中）跳过——且 live 检查 **fail-closed**：store 查询异常时视为 live，不确定时绝不删除
+- **闲置 = 最后一次日志写入**：闲置按会话日志文件 mtime（最后写入时刻）判定，而非目录 mtime——DSH 追加写 `session.jsonl.zstd`，活跃会话的 mtime 持续刷新，永不被误判闲置
+- **one-shot**：完成的一次性子代理统一按 `oneShotMinAgeMinutes` 闲置阈值归档（有无 end-seed 同阈值）；容量保底额外跳过缺 `session/end-seed` 的会话
 - 主会话默认不参与容量回收（可配置）
 - 单点失败隔离：每个动作独立 try/catch
 
@@ -56,7 +59,7 @@ mv ~/.dsh/sessions-archive/<工作区>/<会话ID> ~/.dsh/sessions/<工作区>/
         │     ├─ origin: main | subagent       （会话头）
         │     ├─ mode: one-shot | continuable  （subagent/descriptor 事件）
         │     └─ ended: 是否含 session/end-seed
-        ├─ one-shot + ended ──→ 归档（archiveMode）
+        ├─ one-shot 闲置超阈值 ──→ 归档（archiveMode）
         ├─ continuable/main 闲置 N 天 ──→ 归档
         ├─ 总量 > cap ──→ 按优先级+最旧 归档（跳过运行中/live）
         └─ 每次归档连带：删 projcache 行 + workspace 记账
