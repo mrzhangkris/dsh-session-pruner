@@ -148,7 +148,10 @@ node test/poc-audit.js # 审计回归：ended 误判 / 双源漂移 / 归档孤�
 
 ## 开发文档
 
-[`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH 插件开发实践指南（架构、Host/Client、设置面板、部署运维、10 个坑与解法），为后续插件开发打基础。
+- [`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH 插件开发实践指南（架构、Host/Client、设置面板、部署运维、坑与解法），为后续插件开发打基础
+- [`docs/DESIGN.md`](docs/DESIGN.md) — 设计决策与理由（三层策略、双轨触发、fail-closed 安全矩阵、关键不变量）
+- [`docs/TESTING.md`](docs/TESTING.md) — 测试矩阵、验证金字塔（V0/V2/V3）、发布 checklist
+- [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md) — 项目状态快照与 backlog，给新贡献者/新会话
 
 ## 已知限制
 

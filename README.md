@@ -154,7 +154,10 @@ node test/poc-audit.js # audit regression: ended misjudgment / dual-source drift
 
 ## Developer guide
 
-[`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH plugin development practice guide (architecture, Host/Client, settings panel, deployment ops, 10 pitfalls with fixes), the foundation for future plugin work.
+- [`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) — DSH plugin development practice guide (architecture, Host/Client, settings panel, deployment ops, pitfalls with fixes), the foundation for future plugin work
+- [`docs/DESIGN.md`](docs/DESIGN.md) — design decisions and rationale (three-tier strategy, dual-track triggers, fail-closed safety, invariants)
+- [`docs/TESTING.md`](docs/TESTING.md) — test matrix, verification pyramid (V0/V2/V3), release checklist
+- [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md) — current status snapshot and backlog, for new contributors/sessions
 
 ## Known limits
 

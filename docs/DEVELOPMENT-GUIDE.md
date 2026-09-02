@@ -3,6 +3,7 @@
 > 基于 **dsh-session-pruner**（会话生命周期管理插件）的真实开发全过程整理。
 > 覆盖 DSH 插件开发的完整链路：架构、Host/Client 两侧、设置面板、数据访问、
 > 部署运维，以及所有踩过的坑。**给后续 DSH 插件开发打基础。**
+> 配套：[设计决策 DESIGN](./DESIGN.md) · [测试验证 TESTING](./TESTING.md) · [项目状态 PROJECT-STATUS](./PROJECT-STATUS.md)
 
 ## 0. 插件全景
 
@@ -192,11 +193,47 @@ node zlib 的 `zstdDecompressSync`/流式都只处理第一帧。dsh 内部为�
 3. live 保护：内存 store 挂着的不清理
 4. **pin 白名单**：`runtime.pinned`（Set，面板 pinnedIds 每行一个 / env `_PINNED_IDS` 逗号分隔）——拦截点在 `archiveSession` 入口（所有清理路径必经，新增清理路径不会漏），runOnce 循环里另有一层提前 keep（容量统计更准）
 
-### 2.9 判定逻辑单一来源 —— classifySession + status 路由
+### 2.8b live 检查的 fail-closed —— 坑 12（cordis registry.get 空值语义）
+
+cordis `registry.get(name, strict=true)` 在 **provider fiber 非 active**
+（服务重载窗口）时**返回 `undefined` 而非抛异常**（cordis/lib/index.js
+`_getImpl`：`if (strict && impl.fiber.state !== 2) return`）。这意味着：
+
+```js
+try { return !!ctx.get?.('sessions')?.get?.(sid) } catch { return true }
+//                                  ^^^^^^^^^^^^ 服务重载窗口 → undefined → !!undefined = false
+//                                  → 判定非 live → 可清理（fail-open！）
+```
+
+try/catch 只防了**抛异常**，没防**空值**——服务重载窗口内 live 保护整体失效
+（delete 模式最坏批量物理删除，审计🔴b）。
+
+**正确写法（isLive 单一来源，三处调用点共用）**：只有「服务可用且会话确实
+不在 store」才可清理；服务缺失/接口缺失/查询异常一律视为 live：
+
+```js
+function isLive(ctx, sid) {
+  try {
+    const sessions = typeof ctx.get === 'function' && ctx.get('sessions')
+    if (!sessions || typeof sessions.get !== 'function') return true // fail-closed
+    return !!sessions.get(sid)
+  } catch {
+    return true // fail-closed
+  }
+}
+```
+
+**方法论**：查 cordis/宿主 API 的契约时，别只问「会不会抛」，要问「查不到时
+返回什么」——**fail-closed 必须同时覆盖异常和空值**。
+
+### 2.9 判定逻辑单一来源 —— classifySession + isLive + status 路由
 
 `classifySession(s, now)` 是清理判定的**唯一实现**（one-shot 闲置 + 闲置归档两条路径），
 `runOnce` 与未来任何预览/审计功能都必须复用它——禁止在别处重写判定（dry-run 曾经
-内嵌副本漂移过一轮，教训见 CHANGELOG 0.2.5）。
+内嵌副本漂移过一轮，教训见 CHANGELOG 0.3.0）。
+
+同理的单一来源还有：`isLive`（live 判定）、`decodeSession`（日志解析）、
+`applyRuntimeConfig`（配置写入 runtime，apply 与 onChange 共用）。
 
 `/plugins/dsh-session-pruner/status` 路由返回面板状态行数据：
 - 归档目录现状（readdir+stat，**轻量实时**）
