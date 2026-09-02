@@ -347,4 +347,28 @@ pnpm clean --lockfile && pnpm install   # 重建 lockfile，自动补 integrity
 - 包名：`dsh-` + 功能名词（kebab-case），如 `dsh-session-pruner`、`dsh-archive-manager`。
 - 卡片显示名：中文（用户偏好）或英文均可，与包名解耦。
 - GitHub：仓库名 = 包名，加 `dsh-plugin` topic（官方可发现性机制，dsh-plugin-hub 市场自动收录）。
-- npm：`npm publish`（files 含 lib + cordis.patch.yml；repository/author 字段齐全）。
+- npm：`npm publish`（files 含 lib + cordis.patch.yml；repository/author 字段齐全）；本地 npm 若指向镜像源，加 `--registry https://registry.npmjs.org/`。
+
+### 7.1 发版与本地 profile 同步（踩坑固化，2026-09-02）
+
+本插件以 `file:` 依赖挂进 `~/.dsh/profiles/web`（独立拷贝，非 symlink）。
+**`pnpm install --frozen-lockfile` 对 `file:` 依赖不重新拷贝**（lockfile directory
+指针未变即视为满足）——曾出现 lib 功能代码最新、`package.json` version 残留
+旧值两轮的漂移。发版后固定按此顺序同步：
+
+```bash
+# 1. bump 版本 + release commit + tag（见 §7）之后：
+rm -rf ~/.dsh/profiles/web/node_modules/dsh-session-pruner
+cd ~/.dsh/profiles/web && pnpm install --frozen-lockfile
+
+# 2. 两条校验都过才算同步完成：
+diff -r node_modules/dsh-session-pruner/lib '/Users/zhangpeng/Documents/开发/dsh-session-pruner/lib'
+grep '"version"' node_modules/dsh-session-pruner/package.json   # 应与源码一致
+
+# 3. 重启生效 + 验证：
+launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web
+bash ~/.dsh/skills/scripts/verify-plugin.sh web dsh-session-pruner
+```
+
+仅改代码不发版时，frozen install 通常会刷新 lib 文件（但元数据不会）——
+同样建议用上面的 rm + install + diff 流程，一步到位不猜 pnpm 行为。
