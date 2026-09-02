@@ -4,7 +4,7 @@
 
 > Every session type has a defined destination: finished one-shot subagents are archived automatically, idle continuable subagents / main sessions are archived, and overflow is recycled by priority. **Archive first (recoverable), delete after expiry** — the GUI syncs within 30s, fully panel-configured with hot reload.
 
-[简体中文](README.zh-CN.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner)
+[简体中文](README.zh-CN.md) · [Apache-2.0](LICENSE) · [npm](https://www.npmjs.com/package/dsh-session-pruner) · [![npm version](https://img.shields.io/npm/v/dsh-session-pruner.svg)](https://www.npmjs.com/package/dsh-session-pruner) · [Changelog](CHANGELOG.md)
 
 ## Why
 
@@ -93,6 +93,10 @@ dsh plugin --profile web add dsh-session-pruner
 ```sh
 dsh plugin --profile web add /path/to/dsh-session-pruner
 ```
+
+After installing (or upgrading), restart the dsh web daemon to load the new
+version (`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`) — config
+changes alone hot-reload without restart.
 
 Restart dsh web after install (`launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh-web`).
 
