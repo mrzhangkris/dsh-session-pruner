@@ -1,3 +1,13 @@
+# Changelog
+
+## 0.3.2 (unreleased)
+
+### Changed
+- 配置应用单一来源：提取 `applyRuntimeConfig`，`apply` 的 composition entry 与 settings `onChange` 共用（旧版 apply 只写 3 字段、onChange 写 10 字段，覆盖不一致——settings 就绪前窗口内 archiveHours/archiveMode 等用 env 值）；undefined 字段跳过，apply 场景保住环境变量兜底
+- client dirty 判定去重：数字/枚举/列表原子判定（numDirty/modeDirty/pinnedDirty），高级区 badge 与总 dirty 共用 `advDirty`，不再两处展开同 4 字段
+- 清理冗余：`NS`/`Config` 去掉无外部消费方的多余 export（client bundle 无法 import host 模块）；删除 client 的 `require('react/jsx-runtime')` 迁移遗迹与 host 的 `debug: onChange fired` 调试日志；JSDoc 与 const 挤行的格式修正
+- `package.json` 加 `scripts.test`（poc 回归 + e2e），贡献者可直接 `npm test`
+
 ## 0.3.1 (2026-09-02)
 
 ### Changed
@@ -51,8 +61,6 @@
 ### Fixed
 - 文档一致性：README 日志示例/表格默认值对齐 v0.2.0 代码（扫描间隔 30min→60min、cap 100→400）
 - DEVELOPMENT-GUIDE 代码示例对齐（name 改名遗漏、schema 默认值）
-
-# Changelog
 
 ## 0.2.0 (2026-08-28)
 
