@@ -12,7 +12,7 @@ const tmpHome = await mkdtemp(join(tmpdir(), 'dsh-pruner-e2e-'))
 process.env.DSH_HOME = tmpHome
 process.env.DSH_SESSION_PRUNER_ONE_SHOT_MIN_AGE_MINUTES = '0'
 
-const { runOnce, scanSessions, enqueueCandidate, __setActiveCtxForTest } = await import('../lib/index.js')
+const { runOnce, scanSessions, enqueueCandidate, __setActiveCtxForTest, __runtimeForTest, buildStatusSnapshot } = await import('../lib/index.js')
 
 const TEST_WS = '--e2e-test--'
 const TEST_SID = 'e2e-fake-one-shot-0001'
@@ -78,6 +78,36 @@ if (exists2) {
 }
 console.log('✅ 事件驱动路径：one-shot 完成事件 → 秒级归档（未等定时扫描）')
 
-// 7) 清理临时 DSH_HOME
+// 8) Pin 白名单：pinned 会话命中判定也不清理（所有清理路径的单点拦截）
+const TEST_SID3 = 'e2e-fake-pinned-0003'
+const TEST_DIR3 = join(tmpHome, 'sessions', TEST_WS, TEST_SID3)
+await mkdir(TEST_DIR3, { recursive: true })
+const plainPath3 = join(TEST_DIR3, 'plain.jsonl')
+await writeFile(plainPath3, lines.map((l) => l.replace(TEST_SID, TEST_SID3)).join('\n') + '\n')
+execFileSync('zstd', ['-q', '-f', plainPath3, '-o', join(TEST_DIR3, 'session.jsonl.zstd')])
+await rm(plainPath3)
+
+__runtimeForTest.pinned = new Set([TEST_SID3])
+await runOnce(mockCtx)
+const exists3 = await import('node:fs/promises').then((m) => m.access(TEST_DIR3).then(() => true).catch(() => false))
+if (!exists3) {
+  console.error('❌ pin 白名单失效：pinned 会话被清理')
+  await rm(tmpHome, { recursive: true, force: true })
+  process.exit(1)
+}
+console.log('✅ pin 白名单：命中 one-shot 判定的 pinned 会话未被清理')
+
+// 9) status 快照：runOnce 后有最近扫描数据，归档目录计数正确
+const snap = await buildStatusSnapshot()
+const archivedCountOk = snap.archived && typeof snap.archived.count === 'number' && snap.archived.count >= 2 // 前两步各归档 1 个
+const lastScanOk = snap.lastScanAt > 0 && snap.total >= 1 && snap.lastScanRemoved === 0 // pin 那轮未清理任何
+if (!archivedCountOk || !lastScanOk) {
+  console.error('❌ status 快照异常:', JSON.stringify(snap))
+  await rm(tmpHome, { recursive: true, force: true })
+  process.exit(1)
+}
+console.log(`✅ status 快照：归档 ${snap.archived.count} 个 · 总量 ${snap.total} · pinned ${snap.pinned}`)
+
+// 10) 清理临时 DSH_HOME
 await rm(tmpHome, { recursive: true, force: true })
 console.log('✅ e2e 通过')

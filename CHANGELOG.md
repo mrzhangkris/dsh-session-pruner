@@ -1,10 +1,17 @@
 ## 0.2.5 (unreleased)
 
+### Added
+- Pin 白名单（产品化）：`pinnedIds` 配置（面板每行一个 / env `_PINNED_IDS` 逗号分隔），名单内会话永不自动清理；拦截点在 `archiveSession` 入口——所有清理路径（one-shot 闲置/事件/容量保底/闲置归档）单点防护，新增路径不会漏
+- 面板实时状态行（归档可见性）：卡片展开显示归档数量与最早到期时间、会话总量（含超限）、最近一轮清理数量与时间、已固定数量——`GET /plugins/dsh-session-pruner/status` 轻量路由（readdir+stat + 扫描快照缓存，绝不触发全量 zstd 解压），client 30s 轮询
+- 清理判定抽为 `classifySession` 单一来源（runOnce 与预览复用），`archiveSession` 返回布尔（顺带修复：归档失败也计入 removed 的计数瑕疵）
+- README 恢复指引补充：恢复后立即 pin 或打开，避免打开前窗口期被再次归档
+
 ### Fixed
 - 审计🔴a ended 判定改 JSON.parse 精判（先 includes 粗筛保性能）：旧版纯字符串包含会把「用户消息文本里出现 `session/end-seed` 字样」的行误判为已结束，绕过运行中保护——最讽刺的真实场景是在 DSH 里讨论/开发本插件的会话，闲置归档与容量保底路径可误删
 - 审计🟠b pruneArchive 不再因 archiveMode=delete 提前 return：从 archive 切到 delete 后，切换前已归档的会话会永久残留磁盘（保留期承诺作废）；归档目录的到期清理与当前归档模式无关
 - 审计🟠c dry-run 复用 lib 的 decodeSession/decompressLog（decompressLog 新增测试钩子导出）：旧版 dry-run 内嵌副本仍是扁鹊🟠a 头行判定修复前的逻辑，统计结果不代表生产行为
 - client 面板 intervalMinutes hint 文案改为「定时对账扫描周期」：原文案误写为 one-shot 存活时间（实为 oneShotMinAgeMinutes 语义），误导用户改错字段
+- 文档漂移：README 双语表格/安全保护段/原理图同步 v0.2.3+ 事件驱动语义（中文版全面落后 + 英文版 blockquote 误用中文 + v0.3+ 笔误实为 v0.2.3+）
 
 ## 0.2.4 (2026-08-31)
 

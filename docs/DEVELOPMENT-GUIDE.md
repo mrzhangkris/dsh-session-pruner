@@ -190,6 +190,18 @@ node zlib 的 `zstdDecompressSync`/流式都只处理第一帧。dsh 内部为�
 1. `ended`（有 end-seed）→ 视为完成
 2. **闲置归档阈值**：所有 one-shot 闲置超 oneShotMinAgeMinutes 分钟即归档（默认 3 分钟；有/无 end-seed 统一阈值，配置项控制）
 3. live 保护：内存 store 挂着的不清理
+4. **pin 白名单**：`runtime.pinned`（Set，面板 pinnedIds 每行一个 / env `_PINNED_IDS` 逗号分隔）——拦截点在 `archiveSession` 入口（所有清理路径必经，新增清理路径不会漏），runOnce 循环里另有一层提前 keep（容量统计更准）
+
+### 2.9 判定逻辑单一来源 —— classifySession + status 路由
+
+`classifySession(s, now)` 是清理判定的**唯一实现**（one-shot 闲置 + 闲置归档两条路径），
+`runOnce` 与未来任何预览/审计功能都必须复用它——禁止在别处重写判定（dry-run 曾经
+内嵌副本漂移过一轮，教训见 CHANGELOG 0.2.5）。
+
+`/plugins/dsh-session-pruner/status` 路由返回面板状态行数据：
+- 归档目录现状（readdir+stat，**轻量实时**）
+- 清理数据来自 `lastScanStatus`（runOnce 每轮写入的快照缓存）——**路由绝不触发全量 zstd 解压**，client 30s 轮询无压力
+- 新增清理路径时记得让 runOnce 更新 `lastScanStatus`（见 archivedThisRun）
 
 ## 3. Client 半侧开发
 

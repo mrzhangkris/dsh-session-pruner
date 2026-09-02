@@ -34,6 +34,11 @@ Cleaned sessions are **moved to `~/.dsh/sessions-archive/`** first (workspace/se
 ```sh
 # Restore: mv back into the sessions directory
 mv ~/.dsh/sessions-archive/<workspace>/<session-id> ~/.dsh/sessions/<workspace>/
+
+# ⚠️ After restoring, pin it (or open it) immediately — until the session is
+# opened it is not live-protected, and an idle hit (e.g. one-shot over the
+# threshold, main over mainIdleDays) within one scan cycle may archive it again.
+# Add its session ID to the "Pin whitelist" field in the settings card.
 ```
 
 A "delete directly" mode (no archive, irreversible) is also available.
@@ -93,7 +98,7 @@ Restart dsh web after install (`launchctl kickstart -k gui/$(id -u)/com.deepseek
 
 ## Configuration (settings panel, hot reload)
 
-After install, open **Settings → Plugins → 会话生命周期管理** card. All 9 options save with hot reload (no restart):
+After install, open **Settings → Plugins → 会话生命周期管理** card. All 10 options save with hot reload (no restart):
 
 | Field | Default | Description |
 |---|---|---|
@@ -106,8 +111,12 @@ After install, open **Settings → Plugins → 会话生命周期管理** card. 
 | Main idle archive (days) | 0 | archive after N idle days, 0 = off |
 | Clean main on overflow | off | main participates in capacity recycling |
 | One-shot min survival (min) | 3 | newly finished subagents are not cleaned within N minutes (protects finishing/references) |
+| Pin whitelist (session IDs, one per line) | empty | pinned sessions are never auto-cleaned (pin restored sessions immediately) |
 
-Env vars (fallback, panel wins): `DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES`.
+The card also shows a live **status line** (30s poll): archive count + earliest
+expiry, session total (+ overflow), last cleanup (count + time), pinned count.
+
+Env vars (fallback, panel wins): `DSH_SESSION_PRUNER_INTERVAL_MS` / `_MAX` / `_CLEAN_MAIN` / `_ARCHIVE_HOURS` / `_ARCHIVE_MODE` / `_CONTINUABLE_IDLE_DAYS` / `_MAIN_IDLE_DAYS` / `_ONE_SHOT_MIN_AGE_MINUTES` / `_PINNED_IDS` (comma-separated).
 
 ## Logs
 
