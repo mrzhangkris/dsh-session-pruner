@@ -2,6 +2,9 @@
 
 ## 0.3.2 (unreleased)
 
+### Security
+- live 检查改 isLive 单一来源（fail-closed 完整化）：cordis registry.get 在 provider fiber 非 active（sessions 服务重载窗口）时返回 undefined 而非抛异常，旧版 try/catch 只覆盖抛异常路径——该窗口内 live 保护整体失效，delete 模式下最坏批量物理删除（不可恢复）。现在「服务缺失/接口缺失/查询异常」一律视为 live，宁可不删不可误删（runOnce 主循环/容量保底/事件路径三处共用，顺带消除三处重复）；agent/disposed 服务缺失时无脑入队也由 isLive 兜住
+
 ### Changed
 - 配置应用单一来源：提取 `applyRuntimeConfig`，`apply` 的 composition entry 与 settings `onChange` 共用（旧版 apply 只写 3 字段、onChange 写 10 字段，覆盖不一致——settings 就绪前窗口内 archiveHours/archiveMode 等用 env 值）；undefined 字段跳过，apply 场景保住环境变量兜底
 - client dirty 判定去重：数字/枚举/列表原子判定（numDirty/modeDirty/pinnedDirty），高级区 badge 与总 dirty 共用 `advDirty`，不再两处展开同 4 字段

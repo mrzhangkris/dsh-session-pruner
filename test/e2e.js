@@ -44,8 +44,13 @@ if (!hit || hit.origin !== 'subagent' || hit.mode !== 'one-shot' || !hit.ended) 
   process.exit(1)
 }
 
-// 3) 跑真实 runOnce（mock storageDomain：缓存清理不可用也不阻塞删除）
-const mockCtx = { storageDomain: { get: () => undefined } }
+// 3) 跑真实 runOnce（mock storageDomain：缓存清理不可用也不阻塞删除；
+//    mock sessions 服务 =「服务存在但 store 里没有测试会话」——isLive fail-closed 下，
+//    完全不提供 get（服务缺失）会被视为 live 而不清理，必须提供空 store）
+const mockCtx = {
+  storageDomain: { get: () => undefined },
+  get: (name) => (name === 'sessions' ? { get: () => undefined } : undefined),
+}
 await runOnce(mockCtx)
 
 // 4) 验证已删除

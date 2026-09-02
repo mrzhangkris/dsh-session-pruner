@@ -50,5 +50,22 @@ check('PoC3 pruneArchive 在 delete 模式下提前 return（旧归档残留）'
   !hasEarlyReturn,
   hasEarlyReturn ? '确认：delete 模式跳过 pruneArchive，切换前归档的会话永不被清理' : '未发现')
 
+// ---- PoC 4：live 检查 fail-closed（审计🔴b：sessions 服务重载窗口 fail-open）----
+// cordis registry.get strict 模式在 provider fiber 非 active 时返回 undefined 不抛——
+// 旧版 `!!ctx.get?.('sessions')?.get?.(sid)` 在该窗口判定非 live（可清理），
+// delete 模式下最坏批量 rm。isLive 必须把「服务缺失」视为 live。
+const { isLive } = await import('../lib/index.js')
+const inStore = isLive({ get: (n) => (n === 'sessions' ? { get: (id) => (id === 'live-1' ? { id } : undefined) } : undefined) }, 'live-1')
+const notInStore = isLive({ get: (n) => (n === 'sessions' ? { get: () => undefined } : undefined) }, 'gone-1')
+const svcReload = isLive({ get: () => undefined }, 'any-1') // 服务重载窗口：get('sessions')=undefined
+const noGet = isLive({}, 'any-1') // ctx 无 get（最保守场景）
+const throws = isLive({ get: () => { throw new Error('inject missing') } }, 'any-1')
+check('PoC4a 会话在 store → live', inStore === true)
+check('PoC4b 会话不在 store → 非 live（可清理）', notInStore === false)
+check('PoC4c sessions 服务重载窗口（get 返回 undefined）→ 视为 live（fail-closed）',
+  svcReload === true, svcReload === true ? '重载窗口不清理，等下轮扫描兜底' : 'fail-open：重载窗口可批量清理（delete 模式不可恢复）！')
+check('PoC4d ctx 无 get → 视为 live（fail-closed）', noGet === true)
+check('PoC4e 查询抛异常 → 视为 live（fail-closed）', throws === true)
+
 console.log(fail === 0 ? '\n全部候选被否定' : `\n${fail} 个候选确认为真`)
 process.exit(fail === 0 ? 0 : 1)
