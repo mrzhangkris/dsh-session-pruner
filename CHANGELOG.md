@@ -1,4 +1,4 @@
-## 0.2.5 (unreleased)
+## 0.3.0 (2026-09-02)
 
 ### Added
 - Pin 白名单（产品化）：`pinnedIds` 配置（面板每行一个 / env `_PINNED_IDS` 逗号分隔），名单内会话永不自动清理；拦截点在 `archiveSession` 入口——所有清理路径（one-shot 闲置/事件/容量保底/闲置归档）单点防护，新增路径不会漏
