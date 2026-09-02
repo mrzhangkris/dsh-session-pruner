@@ -100,6 +100,8 @@ changes alone hot-reload without restart.
 
 ## Configuration (settings panel, hot reload)
 
+![settings panel](docs/screenshot-settings.png)
+
 After install, open **Settings → Plugins → 会话生命周期管理** card. All 10 options save with hot reload (no restart). Six everyday options are visible by default; the four low-frequency fallbacks are tucked into an "Advanced" collapsible section (its title shows an unsaved-changes badge when applicable):
 
 | Field | Default | Description |
