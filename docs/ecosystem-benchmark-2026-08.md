@@ -1,4 +1,4 @@
-# DSH 插件生态对标与事件驱动调研（草稿，待 A/B 调研补充）
+# DSH 插件生态对标与事件驱动调研
 
 > 2026-08-21 · dsh-session-pruner 开发过程中的生态调研。
 > 触发背景：修完「可续子代理删除后界面不刷新」bug 后，用户要求看货架（CANDIDATES.md）
@@ -114,7 +114,7 @@
   - <https://github.com/fakechris/dsh-harness-ops/tree/main/plugins/dsh-restart-recover>（README）
 - 生态其他同类（未深挖，备查）：hkkz9522 之外还有 `Semidia/dsh-session-manager`（纯客户端，一行补丁给行元素加 `data-session-id`）、`MuWinds/dsh-archived-sessions`、`keepermttl/dsh-archive-viewer`、`MichengAI/dsh-archive-manager`、`AKS1st/dsh-archived-conversations`、`Coprexist/dsh-session-recovery`（磁盘级恢复删除会话）、`guo6x/dsh-housekeeper` / `zoahdev/dsh-disk-audit`（环境/磁盘清理）、`x2802490130-prog/dsh-shield`（删除进回收站）。
 
-## 待补充
+## 调研完成情况
 
 - [x] A：awesome-dsh-plugin 同类插件对标表（2026-08-21 完成，web 实际调研）
-- [ ] B：dsh-agent-teams 事件驱动实现剖析 + 迁移可行性
+- [x] B：dsh-agent-teams 事件驱动实现剖析 + 迁移可行性 → 结论落地为 [event-driven-migration-report.md](./event-driven-migration-report.md)，实现已随 v0.2.0 上线（事件驱动即时归档 + dirty-flag GUI 同步）
